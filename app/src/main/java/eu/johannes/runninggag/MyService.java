@@ -23,14 +23,31 @@ public class MyService extends Service
     private double distance;
     private int points;
     private ArrayList <DataPoint> dataPoints = new ArrayList<>();
-    Location mLastLocation;
+    Location mLastLocation = new Location("test");
     public void registerClient(Callback activity){
         this.activity = activity;
     }
     public void unregisterClient() {
         this.activity = null ;
     }
-     public interface Callback{
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public ArrayList<DataPoint> getDataPoints() {
+        return dataPoints;
+    }
+
+    public Location getmLastLocation() {
+        return mLastLocation;
+    }
+
+    public interface Callback{
         public void gpslocation(double speed, double distance, int points, float accuracy, ArrayList<DataPoint> dataPoints);
     }
     private class LocationListener implements android.location.LocationListener

@@ -97,6 +97,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
     @Override
     public void gpslocation(double speed, double distance, int points, float accuracy, ArrayList<DataPoint> dataPoints) {
 
+
         TextView data = findViewById(R.id.GpsDaten);
         data.setText("speed:" + speed);
         TextView distancelol = findViewById(R.id.distance);
@@ -148,5 +149,9 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         }
         handler.postDelayed(runnable, SWITCH_UPDATE_INTERVAL);
         super.onResume();
+        if (myService != null ) {
+            gpslocation(myService.getmLastLocation().getSpeed(), myService.getDistance(), myService.getPoints(), myService.getmLastLocation().getAccuracy(), myService.getDataPoints());
+        }
+
     }
 }
