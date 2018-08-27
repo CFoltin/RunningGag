@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="vertical"
+android:background="@drawable/selfmadebackground2">
 
     <Button
         android:id="@+id/startService"
@@ -16,6 +17,7 @@
     <ListView
         android:id="@+id/runs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
+        android:layout_height="wrap_content"
+       ></ListView>
 
 </LinearLayout>
