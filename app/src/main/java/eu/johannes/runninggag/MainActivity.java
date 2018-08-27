@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+                R.layout.list_yellow_text, R.id.list_content, values);
 
         runlist.setAdapter(adapter);
 
