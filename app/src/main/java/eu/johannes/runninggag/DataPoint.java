@@ -9,6 +9,18 @@ public class DataPoint {
         this.latitude = latitude;
     }
 
+    @Override
+    public String toString() {
+        return "DataPoint{" +
+                "latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", provider='" + provider + '\'' +
+                ", speed=" + speed +
+                ", accuracy=" + accuracy +
+                ", time=" + time +
+                '}';
+    }
+
     public double getLongitude() {
         return longitude;
     }

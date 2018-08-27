@@ -67,10 +67,13 @@ public class MainActivity extends AppCompatActivity {
                 // ListView Clicked item value
                 String itemValue = (String) runlist.getItemAtPosition(position);
 
-                // Show Alert
-                Toast.makeText(getApplicationContext(),
-                        "Position :" + itemPosition + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
-                        .show();
+                RunningGagData runningGagData = RunningGagData.loadData(MainActivity.this);
+                OnlyOneRun run = runningGagData.getRuns().get(position);
+                Intent intent = new Intent(MainActivity.this, RunResult.class);
+                intent.putExtra ("com.example.runs.run", run);
+                startActivity(intent);
+
+
 
             }
         });
