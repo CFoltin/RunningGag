@@ -1,10 +1,18 @@
 package eu.johannes.runninggag;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
@@ -14,7 +22,13 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,7 +38,10 @@ import java.util.List;
 public class RunResult extends AppCompatActivity {
 
 
+    private static final String TAG = RunResult.class.getName();
     MapView map = null;
+    private Intent shareIntent;
+
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -53,16 +70,14 @@ public class RunResult extends AppCompatActivity {
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
 
-
         List<GeoPoint> geoPoints = new ArrayList<>();
-
         for(DataPoint dataPoint : run.getDataPoints()){
 
             Log.d("RunResult", String.valueOf(dataPoint));
             GeoPoint geo = new GeoPoint(dataPoint.getLatitude(),dataPoint.getLongitude());
             geoPoints.add(geo);
-
         }
+
         IMapController mapController = map.getController();
         mapController.setZoom(15);
         DataPoint firstPoint = run.getDataPoints().get(0);
@@ -80,6 +95,33 @@ public class RunResult extends AppCompatActivity {
         map.getOverlayManager().add(line);
 
 
+        // create share intent:
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        String gpxFile = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" creator=\"RunningGag\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\"><trk><trkseg>";
+        for(DataPoint dataPoint : run.getDataPoints()){
+            gpxFile += "<trkpt lat=\"" + dataPoint.getLatitude() + "\" lon=\"" +dataPoint.getLongitude() + "\" ><time>" + df.format(new Date(dataPoint.getTime()))  + "</time> </trkpt>";
+        }
+        gpxFile += "</trkseg></trk></gpx>";
+        shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType("application/gpx+xml");
+        if (shareIntent.resolveActivity(getPackageManager()) != null) {
+            Uri gpxURI = null;
+            try {
+                File temp=File.createTempFile("RunningGag_",".gpx",getCacheDir());
+                temp.deleteOnExit();
+                FileWriter writer = new FileWriter(temp);
+                writer.write(gpxFile);
+                writer.close();
+                gpxURI = FileProvider.getUriForFile(this,
+                        getString(R.string.file_provider_authority),
+                        temp);
+
+            } catch (IOException ex) {
+                Log.e(TAG, ex.getMessage());
+            }
+            shareIntent.putExtra(Intent.EXTRA_STREAM, gpxURI);
+        }
     }
 
     public void onResume(){
@@ -99,4 +141,23 @@ public class RunResult extends AppCompatActivity {
         //Configuration.getInstance().save(this, prefs);
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
+
+    private ShareActionProvider mShareActionProvider;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate menu resource file.
+        getMenuInflater().inflate(R.menu.run_result_menu, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        mShareActionProvider.setShareIntent(shareIntent);
+
+        // Return true to display menu
+        return true;
+    }
+
 }
