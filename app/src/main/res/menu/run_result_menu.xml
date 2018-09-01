@@ -4,6 +4,10 @@
         android:id="@+id/menu_item_share"
         android:title="Share"
         app:showAsAction="ifRoom"
-        app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
+    <item
+        android:id="@+id/menu_item_gpx"
+        android:title="GPX"
+        app:showAsAction="ifRoom" />
 
 </menu>
