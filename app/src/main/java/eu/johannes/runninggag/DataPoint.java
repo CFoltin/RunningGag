@@ -35,6 +35,16 @@ public class DataPoint {
     private double speed;
     private double accuracy;
 
+    public double getAltitude() {
+        return altitude;
+    }
+
+    public void setAltitude(double altitude) {
+        this.altitude = altitude;
+    }
+
+    private double altitude;
+
     public long getTime() {
         return time;
     }
