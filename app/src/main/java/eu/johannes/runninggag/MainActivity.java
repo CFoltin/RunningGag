@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "Vorher: ");
         setContentView(R.layout.activity_main);
+        Toolbar title = findViewById(R.id.toolbar);
+        setSupportActionBar(title);
+
         final Button setService = findViewById(R.id.startService);
         setService.setOnClickListener(new View.OnClickListener() {
             @Override

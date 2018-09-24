@@ -9,7 +9,7 @@
     <!-- Defining where should text be placed. You set you text color here-->
     <TextView
         android:id="@+id/list_content"
-        android:textColor="#fbf824"
+        android:textColor="#a4f7ff00"
         android:gravity="center"
         android:text="sample"
         android:layout_margin="4dip"

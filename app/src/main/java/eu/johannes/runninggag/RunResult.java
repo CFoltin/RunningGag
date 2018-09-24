@@ -1,5 +1,5 @@
 package eu.johannes.runninggag;
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -12,6 +12,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
+import android.widget.TextView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -75,19 +76,23 @@ public class RunResult extends AppCompatActivity {
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
 
+
         List<GeoPoint> geoPoints = new ArrayList<>();
-        for (DataPoint dataPoint : run.getDataPoints()) {
+
+        for(DataPoint dataPoint : run.getDataPoints()){
 
             //Log.d("RunResult", String.valueOf(dataPoint));
             GeoPoint geo = new GeoPoint(dataPoint.getLatitude(), dataPoint.getLongitude());
             geoPoints.add(geo);
-        }
 
+        }
         IMapController mapController = map.getController();
         mapController.setZoom(15);
-        DataPoint firstPoint = run.getDataPoints().get(0);
-        GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
-        mapController.setCenter(startPoint);
+        if(!run.getDataPoints().isEmpty()) {
+            DataPoint firstPoint = run.getDataPoints().get(0);
+            GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
+            mapController.setCenter(startPoint);
+        }
         Polyline line = new Polyline();   //see note below!
         line.setPoints(geoPoints);
         line.setOnClickListener(new Polyline.OnClickListener() {
@@ -99,9 +104,33 @@ public class RunResult extends AppCompatActivity {
         });
         map.getOverlayManager().add(line);
         createShareAction();
+
+        TextView minprokm = findViewById(R.id.MinproKM);
+        double distance = run.getDistance();
+        long startime = run.getStartTime();
+        long stoptime = run.getStopTime();
+        long time = stoptime - startime;
+        distance = distance / 1000d;
+        time = time / 60000l;
+        if (distance != 0 && time != 0) {
+            double mindurchkm = ((double)time) / distance;
+            minprokm.setText("Durchschnittszeit:" + mindurchkm);
+
+        }
+        else {
+            minprokm.setText("Du faule Sau");
+        }
+
+        TextView Distance = findViewById(R.id.Distance);
+        Distance.setText("Distance: "+ distance + "km");
+        TextView Laufzeit = findViewById(R.id.time);
+        Laufzeit.setText("Zeit: " + time + "min");
+        TextView Points = findViewById(R.id.points);
+        int punkte = run.getPoints();
+        Points.setText("Punkte " + punkte);
     }
 
-    public void onResume() {
+    public void onResume(){
         super.onResume();
         //this will refresh the osmdroid configuration on resuming.
         //if you make changes to the configuration, use
@@ -110,7 +139,7 @@ public class RunResult extends AppCompatActivity {
         map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
     }
 
-    public void onPause() {
+    public void onPause(){
         super.onPause();
         //this will refresh the osmdroid configuration on resuming.
         //if you make changes to the configuration, use
@@ -203,4 +232,6 @@ public class RunResult extends AppCompatActivity {
         gpxFile += "</trkseg></trk></gpx>";
         return gpxFile;
     }
+
+
 }
