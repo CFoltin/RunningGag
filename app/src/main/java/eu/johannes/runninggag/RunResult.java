@@ -1,9 +1,16 @@
 package eu.johannes.runninggag;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.widget.TextView;
 import android.view.Menu;
@@ -81,9 +88,11 @@ public class RunResult extends AppCompatActivity {
         }
         IMapController mapController = map.getController();
         mapController.setZoom(15);
-        DataPoint firstPoint = run.getDataPoints().get(0);
-        GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
-        mapController.setCenter(startPoint);
+        if(!run.getDataPoints().isEmpty()) {
+            DataPoint firstPoint = run.getDataPoints().get(0);
+            GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
+            mapController.setCenter(startPoint);
+        }
         Polyline line = new Polyline();   //see note below!
         line.setPoints(geoPoints);
         line.setOnClickListener(new Polyline.OnClickListener() {
