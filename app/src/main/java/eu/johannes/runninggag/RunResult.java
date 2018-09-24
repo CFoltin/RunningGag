@@ -111,10 +111,11 @@ public class RunResult extends AppCompatActivity {
         long stoptime = run.getStopTime();
         long time = stoptime - startime;
         distance = distance / 1000d;
-        time = time / 60000l;
+
+        time = time / 1000l;
         if (distance != 0 && time != 0) {
-            double mindurchkm = ((double)time) / distance;
-            minprokm.setText("Durchschnittszeit:" + mindurchkm);
+            double secprokm = ((double)time) / distance;
+            minprokm.setText("Durchschnittszeit: " + Runnow.getDurationString((long)secprokm));
 
         }
         else {
@@ -124,7 +125,7 @@ public class RunResult extends AppCompatActivity {
         TextView Distance = findViewById(R.id.Distance);
         Distance.setText("Distance: "+ distance + "km");
         TextView Laufzeit = findViewById(R.id.time);
-        Laufzeit.setText("Zeit: " + time + "min");
+        Laufzeit.setText("Zeit: " + Runnow.getTimePassed(run.getStartTime(),run.getStopTime()));
         TextView Points = findViewById(R.id.points);
         int punkte = run.getPoints();
         Points.setText("Punkte " + punkte);

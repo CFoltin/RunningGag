@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -120,8 +121,13 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
 
     }
 
-    public String getTimePassed(Long lastStarted, long currentTime) {
+    public static String getTimePassed(Long lastStarted, long currentTime) {
         long seconds = (currentTime - lastStarted) / 1000;
+        return getDurationString(seconds);
+    }
+
+    @NonNull
+    public static String getDurationString(long seconds) {
         long minutes = seconds / 60;
         long hours = minutes / 60;
         long days = hours / 24;
