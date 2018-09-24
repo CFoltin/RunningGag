@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
@@ -14,9 +16,14 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
-import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,8 +32,16 @@ import java.util.List;
 
 public class RunResult extends AppCompatActivity {
 
+
+    private static final String TAG = RunResult.class.getName();
+    public static final String APPLICATION_GPX_XML = "application/gpx+xml";
     MapView map = null;
-    @Override public void onCreate(Bundle savedInstanceState) {
+    private Intent shareIntent;
+    private OnlyOneRun run;
+    private ShareActionProvider mShareActionProvider;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 
@@ -48,7 +63,7 @@ public class RunResult extends AppCompatActivity {
         map.setTileSource(TileSourceFactory.MAPNIK);
 
         Bundle bundle = getIntent().getExtras();
-        OnlyOneRun run = bundle.getParcelable("com.example.runs.run");
+        run = bundle.getParcelable("com.example.runs.run");
 
 
         map.setBuiltInZoomControls(true);
@@ -59,22 +74,16 @@ public class RunResult extends AppCompatActivity {
 
         for(DataPoint dataPoint : run.getDataPoints()){
 
-            Log.d("RunResult", String.valueOf(dataPoint));
-            GeoPoint geo = new GeoPoint(dataPoint.getLatitude(),dataPoint.getLongitude());
+            //Log.d("RunResult", String.valueOf(dataPoint));
+            GeoPoint geo = new GeoPoint(dataPoint.getLatitude(), dataPoint.getLongitude());
             geoPoints.add(geo);
 
         }
         IMapController mapController = map.getController();
         mapController.setZoom(15);
-        if (run.getDataPoints().isEmpty()){}
-
-        else {
-            DataPoint firstPoint = run.getDataPoints().get(0);
-            GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
-            mapController.setCenter(startPoint);
-        }
-
-
+        DataPoint firstPoint = run.getDataPoints().get(0);
+        GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
+        mapController.setCenter(startPoint);
         Polyline line = new Polyline();   //see note below!
         line.setPoints(geoPoints);
         line.setOnClickListener(new Polyline.OnClickListener() {
@@ -85,6 +94,7 @@ public class RunResult extends AppCompatActivity {
             }
         });
         map.getOverlayManager().add(line);
+        createShareAction();
 
         TextView minprokm = findViewById(R.id.MinproKM);
         double distance = run.getDistance();
@@ -127,6 +137,91 @@ public class RunResult extends AppCompatActivity {
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate menu resource file.
+        getMenuInflater().inflate(R.menu.run_result_menu, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.menu_item_share);
+
+        // Fetch and store ShareActionProvider
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        mShareActionProvider.setShareIntent(shareIntent);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_gpx:
+                callGpxAction();
+                break;
+        }
+        return true;
+    }
+
+    private void createShareAction() {
+        // create gpx intent:
+        String gpxFile = getGpxFileContent();
+        shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType(APPLICATION_GPX_XML);
+        if (shareIntent.resolveActivity(getPackageManager()) != null) {
+            Uri gpxURI = getTemporaryUriForFile(gpxFile);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, gpxURI);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Log.d(TAG, "Intent:  " + shareIntent + " URI: " + gpxURI);
+        }
+    }
+
+    private void callGpxAction() {
+        // create gpx intent:
+        String gpxFile = getGpxFileContent();
+        Intent gpxIntent = new Intent();
+        gpxIntent.setAction(Intent.ACTION_VIEW);
+        gpxIntent.setType(APPLICATION_GPX_XML);
+        if (gpxIntent.resolveActivity(getPackageManager()) != null) {
+            Uri gpxURI = getTemporaryUriForFile(gpxFile);
+            gpxIntent.setData(gpxURI);
+            gpxIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//            shareIntent.putExtra(Intent.EXTRA_STREAM, gpxURI);
+            Log.d(TAG, "Intent:  " + gpxIntent + " URI: " + gpxURI);
+        }
+        startActivity(Intent.createChooser(gpxIntent, "Wohin mit dem GPX File?"));
+    }
+
+    @Nullable
+    private Uri getTemporaryUriForFile(String gpxFile) {
+        Uri gpxURI = null;
+        try {
+            File temp = File.createTempFile("RunningGag_", ".gpx", getCacheDir());
+            temp.deleteOnExit();
+            FileWriter writer = new FileWriter(temp);
+            writer.write(gpxFile);
+            writer.close();
+            gpxURI = FileProvider.getUriForFile(this,
+                    getString(R.string.file_provider_authority),
+                    temp);
+
+        } catch (IOException ex) {
+            Log.e(TAG, ex.getMessage());
+        }
+        return gpxURI;
+    }
+
+    @NonNull
+    private String getGpxFileContent() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        String gpxFile = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" creator=\"RunningGag\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\"><trk><trkseg>";
+        for (DataPoint dataPoint : run.getDataPoints()) {
+            gpxFile += "<trkpt lat=\"" + dataPoint.getLatitude() + "\" lon=\"" + dataPoint.getLongitude() + "\" ><time>" + df.format(new Date(dataPoint.getTime())) + "</time> </trkpt>";
+        }
+        gpxFile += "</trkseg></trk></gpx>";
+        return gpxFile;
     }
 
 
