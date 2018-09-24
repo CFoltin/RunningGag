@@ -8,15 +8,15 @@
 
     <LinearLayout
         android:layout_width="368dp"
-        android:layout_height="100dp"
+        android:layout_height="200dp"
         android:orientation="horizontal"
         android:gravity="center_horizontal"
         >
 
         <Button
             android:id="@+id/stopService"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:background="@drawable/roundedbutton"
             android:text="Stop" />
 
@@ -25,15 +25,17 @@
 
     <TextView
         android:id="@+id/GpsDaten"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="speed"
+        android:gravity="center"
+        android:text="Speed"
         android:textSize="25dp" />
 
     <TextView
         android:id="@+id/time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Time"
         android:textSize="25dp" />
 
@@ -41,6 +43,7 @@
         android:id="@+id/distance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Distance"
         android:textSize="25dp" />
 
@@ -48,14 +51,16 @@
         android:id="@+id/points"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="points"
+        android:gravity="center"
+        android:text="Points"
         android:textSize="25dp" />
 
     <TextView
         android:id="@+id/accuracy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="accuracy"
+        android:gravity="center"
+        android:text="Accuracy"
         android:textSize="25dp" />
 
 </LinearLayout>

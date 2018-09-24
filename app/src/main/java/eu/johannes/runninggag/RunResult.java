@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
@@ -13,6 +14,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,6 @@ import java.util.List;
  */
 
 public class RunResult extends AppCompatActivity {
-
 
     MapView map = null;
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -65,9 +66,15 @@ public class RunResult extends AppCompatActivity {
         }
         IMapController mapController = map.getController();
         mapController.setZoom(15);
-        DataPoint firstPoint = run.getDataPoints().get(0);
-        GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
-        mapController.setCenter(startPoint);
+        if (run.getDataPoints().isEmpty()){}
+
+        else {
+            DataPoint firstPoint = run.getDataPoints().get(0);
+            GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
+            mapController.setCenter(startPoint);
+        }
+
+
         Polyline line = new Polyline();   //see note below!
         line.setPoints(geoPoints);
         line.setOnClickListener(new Polyline.OnClickListener() {
@@ -79,7 +86,29 @@ public class RunResult extends AppCompatActivity {
         });
         map.getOverlayManager().add(line);
 
+        TextView minprokm = findViewById(R.id.MinproKM);
+        double distance = run.getDistance();
+        long startime = run.getStartTime();
+        long stoptime = run.getStopTime();
+        long time = stoptime - startime;
+        distance = distance / 1000d;
+        time = time / 60000l;
+        if (distance != 0 && time != 0) {
+            double mindurchkm = ((double)time) / distance;
+            minprokm.setText("Durchschnittszeit:" + mindurchkm);
 
+        }
+        else {
+            minprokm.setText("Du faule Sau");
+        }
+
+        TextView Distance = findViewById(R.id.Distance);
+        Distance.setText("Distance: "+ distance + "km");
+        TextView Laufzeit = findViewById(R.id.time);
+        Laufzeit.setText("Zeit: " + time + "min");
+        TextView Points = findViewById(R.id.points);
+        int punkte = run.getPoints();
+        Points.setText("Punkte " + punkte);
     }
 
     public void onResume(){
@@ -99,4 +128,6 @@ public class RunResult extends AppCompatActivity {
         //Configuration.getInstance().save(this, prefs);
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
+
+
 }

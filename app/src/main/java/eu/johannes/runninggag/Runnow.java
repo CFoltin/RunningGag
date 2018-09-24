@@ -26,6 +26,8 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
     private double loldistance;
     private int lolpoints;
     private ArrayList<DataPoint> loldatapoints;
+    private double kmdistance;
+    private long kmtime;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -101,6 +103,12 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         TextView data = findViewById(R.id.GpsDaten);
         data.setText("speed:" + speed);
         TextView distancelol = findViewById(R.id.distance);
+        kmdistance = distance;
+        if (kmdistance >= 1000);
+        {
+            kmtime = startTime;
+
+        }
         distancelol.setText("Distance:"+distance);
         loldistance = distance;
         TextView accuracy1 = findViewById(R.id.accuracy);
