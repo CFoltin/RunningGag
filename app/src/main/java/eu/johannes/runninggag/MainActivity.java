@@ -1,11 +1,13 @@
 package eu.johannes.runninggag;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -15,14 +17,21 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+
+import eu.johannes.runninggag.fitness22.Fitness22;
+import eu.johannes.runninggag.fitness22.LocationPointsArray;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -52,20 +61,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Nachher: ");
         runlist = (ListView) findViewById(R.id.runs);
 
-        ArrayList<String> values = new ArrayList<>();
-        RunningGagData runningGagData = RunningGagData.loadData(this);
-        for(OnlyOneRun run : runningGagData.getRuns()){
-            String theRun = "Lauf vom "+new Date(run.getStartTime()) + "  Gelaufen:" + run.getDistance();
-
-            values.add(theRun);
-
-
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                R.layout.list_yellow_text, R.id.list_content, values);
-
-        runlist.setAdapter(adapter);
+        setRunlistAdapter();
 
         // ListView Item Click Listener
         runlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -83,14 +79,31 @@ public class MainActivity extends AppCompatActivity {
                 RunningGagData runningGagData = RunningGagData.loadData(MainActivity.this);
                 OnlyOneRun run = runningGagData.getRuns().get(position);
                 Intent intent = new Intent(MainActivity.this, RunResult.class);
-                intent.putExtra ("com.example.runs.run", run);
+                intent.putExtra("com.example.runs.run", run);
                 startActivity(intent);
-
 
 
             }
         });
     }
+
+    private void setRunlistAdapter() {
+        ArrayList<String> values = new ArrayList<>();
+        RunningGagData runningGagData = RunningGagData.loadData(this);
+        for (OnlyOneRun run : runningGagData.getRuns()) {
+            String theRun = "Lauf vom " + new Date(run.getStartTime()) + "  Gelaufen: " + run.getDistance();
+
+            values.add(theRun);
+
+
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                R.layout.list_yellow_text, R.id.list_content, values);
+
+        runlist.setAdapter(adapter);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate menu resource file.
@@ -109,35 +122,110 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void callImportAction() {
+        verifyStoragePermissions(this);
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("file/*");
-        startActivityForResult(intent,PICKFILE_RESULT_CODE);
+        startActivityForResult(intent, PICKFILE_RESULT_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode){
+        switch (requestCode) {
             case PICKFILE_RESULT_CODE:
-                if(resultCode==RESULT_OK){
-                    String FilePath = data.getData().getPath();
+                if (resultCode == RESULT_OK) {
+                    Uri fileUri = data.getData();
                     // start import action:
-                    Log.d(TAG, "File: " + FilePath);
+                    try {
+                        Log.d(TAG, "Importing data...");
+                        Gson gson = new Gson();
+                        InputStream inputStream = getContentResolver().openInputStream(fileUri);
+                        Type collectionType = new TypeToken<Collection<Fitness22>>(){}.getType();
+                        Collection<Fitness22> result = gson.fromJson(new InputStreamReader(inputStream), collectionType);
+                        inputStream.close();
+                        Log.d(TAG, "Importing data. Done");
+                        RunningGagData runningGagData = RunningGagData.loadData(this);
+                        RUNLOOP:
+                        for (Fitness22 run : result) {
+                            OnlyOneRun newRun = new OnlyOneRun();
+                            boolean isNew = true;
+                            for (OnlyOneRun ownRun : runningGagData.getRuns()) {
+                                if (ownRun.getStartTime() == run.getStartDate()) {
+                                    // update instead of new:
+                                    newRun = ownRun;
+                                    isNew = false;
+                                }
+                            }
+                            // run is new. Let's import it.
+                            newRun.setStartTime(run.getStartDate());
+                            newRun.setPoints(run.getLocationPointsArray().size());
+                            newRun.setDistance(run.getDistanceMeters());
+                            newRun.setStopTime(run.getStartDate() + run.getWorkoutDuration());
+                            newRun.getDataPoints().clear();
+                            for (LocationPointsArray point : run.getLocationPointsArray()) {
+                                DataPoint dp = new DataPoint();
+                                dp.setAccuracy(point.getMAccuracy());
+                                dp.setLatitude(point.getMLatitude());
+                                dp.setLongitude(point.getMLongitude());
+                                dp.setProvider(point.getProvider());
+                                dp.setSpeed(point.getMSpeed());
+                                dp.setTime(point.getMTime());
+                                dp.setAltitude(point.getMAltitude());
+                                newRun.getDataPoints().add(dp);
+                            }
+                            if (isNew) {
+                                runningGagData.getRuns().add(newRun);
+                                Log.d(TAG, "Created new run: " + newRun);
+                            } else {
+                                Log.d(TAG, "Updated existing run");
+                            }
+                        }
+                        Log.d(TAG, "Sorting...");
+                        // final sort:
+                        Collections.sort(runningGagData.getRuns(), new Comparator<OnlyOneRun>() {
+                            @Override
+                            public int compare(OnlyOneRun o1, OnlyOneRun o2) {
+                                return (int) Math.signum(o1.getStartTime() - o2.getStartTime());
+                            }
+                        });
+                        Log.d(TAG, "Storing data....");
+                        runningGagData.storeData(this);
+                        Log.d(TAG, "Recreating list...");
+                        setRunlistAdapter();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.e(TAG, e.getLocalizedMessage());
+                    }
                 }
                 break;
 
         }
     }
 
-    private String readTextFromUri(Uri uri) throws IOException {
-        InputStream inputStream = getContentResolver().openInputStream(uri);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(
-                inputStream));
-        StringBuilder stringBuilder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            stringBuilder.append(line);
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    /**
+     * Checks if the app has permission to write to device storage
+     * <p>
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
         }
-        inputStream.close();
-        return stringBuilder.toString();
     }
 }
