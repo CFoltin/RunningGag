@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -123,7 +124,8 @@ public class RunResult extends AppCompatActivity {
         }
 
         TextView Distance = findViewById(R.id.Distance);
-        Distance.setText("Distance: "+ distance + "km");
+        DecimalFormat f = new DecimalFormat("#0.00");
+        Distance.setText("Distance: "+ f.format(distance) + "km");
         TextView Laufzeit = findViewById(R.id.time);
         Laufzeit.setText("Zeit: " + Runnow.getTimePassed(run.getStartTime(),run.getStopTime()));
         TextView Points = findViewById(R.id.points);
