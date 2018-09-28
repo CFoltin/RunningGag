@@ -78,7 +78,8 @@ public class RunResult extends AppCompatActivity {
 
 
         List<GeoPoint> geoPoints = new ArrayList<>();
-
+        // load points
+        run.loadDataPoints(this);
         for(DataPoint dataPoint : run.getDataPoints()){
 
             //Log.d("RunResult", String.valueOf(dataPoint));

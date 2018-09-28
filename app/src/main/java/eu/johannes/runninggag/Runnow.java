@@ -59,9 +59,10 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                 OnlyOneRun myRun = new OnlyOneRun();
                 myRun.setDistance(loldistance);
                 myRun.setPoints(lolpoints);
-                myRun.setDataPoints(loldatapoints);
                 myRun.setStartTime(startTime);
                 myRun.setStopTime(System.currentTimeMillis());
+                myRun.setDataPoints(loldatapoints);
+                myRun.storeDataPoints(Runnow.this);
                 runningGagData.getRuns().add(myRun);
                 runningGagData.storeData(Runnow.this);
 

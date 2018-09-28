@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ListView runlist;
     private static final int PICKFILE_RESULT_CODE = 1;
+    private RunningGagData runningGagData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar title = findViewById(R.id.toolbar);
         setSupportActionBar(title);
+        runningGagData = RunningGagData.loadData(this);
 
         final Button setService = findViewById(R.id.startService);
         setService.setOnClickListener(new View.OnClickListener() {
@@ -56,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, Runnow.class));
             }
         });
-
 
         Log.d(TAG, "Nachher: ");
         runlist = (ListView) findViewById(R.id.runs);
@@ -69,27 +70,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
                 // ListView Clicked item index
                 int itemPosition = position;
 
                 // ListView Clicked item value
                 String itemValue = (String) runlist.getItemAtPosition(position);
 
-                RunningGagData runningGagData = RunningGagData.loadData(MainActivity.this);
                 OnlyOneRun run = runningGagData.getRuns().get(position);
                 Intent intent = new Intent(MainActivity.this, RunResult.class);
                 intent.putExtra("com.example.runs.run", run);
                 startActivity(intent);
-
-
             }
         });
     }
 
     private void setRunlistAdapter() {
         ArrayList<String> values = new ArrayList<>();
-        RunningGagData runningGagData = RunningGagData.loadData(this);
         for (OnlyOneRun run : runningGagData.getRuns()) {
             String theRun = "Lauf vom " + new Date(run.getStartTime()) + "  Gelaufen: " + run.getDistance();
 
@@ -143,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
                         Collection<Fitness22> result = gson.fromJson(new InputStreamReader(inputStream), collectionType);
                         inputStream.close();
                         Log.d(TAG, "Importing data. Done");
-                        RunningGagData runningGagData = RunningGagData.loadData(this);
                         RUNLOOP:
                         for (Fitness22 run : result) {
                             OnlyOneRun newRun = new OnlyOneRun();
@@ -172,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
                                 dp.setAltitude(point.getMAltitude());
                                 newRun.getDataPoints().add(dp);
                             }
+                            newRun.storeDataPoints(this);
                             if (isNew) {
                                 runningGagData.getRuns().add(newRun);
                                 Log.d(TAG, "Created new run: " + newRun);

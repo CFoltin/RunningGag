@@ -22,7 +22,20 @@ public class RunningGagData {
         SharedPreferences preferences = context.getSharedPreferences("application_data", Context.MODE_PRIVATE);
         String data = preferences.getString("data", "{}");
         Gson gson = new Gson();
-        return gson.fromJson(data, RunningGagData.class);
+        RunningGagData runningGagData = gson.fromJson(data, RunningGagData.class);
+        // store all points separately.
+        boolean changed = false;
+        for (OnlyOneRun run : runningGagData.getRuns()){
+            if(!run.getDataPoints().isEmpty()){
+                run.storeDataPoints(context);
+            }
+            run.getDataPoints().clear();
+            changed = true;
+        }
+        if(changed) {
+            runningGagData.storeData(context);
+        }
+        return runningGagData;
     }
 
     public void storeData(Context context){
