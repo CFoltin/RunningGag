@@ -2,6 +2,7 @@ package eu.johannes.runninggag;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -28,6 +29,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,14 +124,43 @@ public class RunResult extends AppCompatActivity {
         else {
             minprokm.setText("Du faule Sau");
         }
-
+        if (run.getPoints() > 0) {
+            double distance2 = 0;
+            long lasttime = run.getStartTime();
+            DataPoint lastPoint = run.getDataPoints().get(0);
+            String ausgabe = "Rundenzeiten:\n";
+            for (DataPoint dataPoint : run.getDataPoints()) {
+                double distanceToLastPoint = getLocation(dataPoint).distanceTo(getLocation(lastPoint));
+                distance2 = distance2 + distanceToLastPoint;
+                if (distance2 > 1000) {
+                    long roundtime = dataPoint.getTime() - lasttime;
+                    ausgabe = ausgabe + roundtime + "\n";
+                    distance2 = 0;
+                    lasttime = dataPoint.getTime();
+                }
+                lastPoint = dataPoint;
+            }
+            TextView roundtimefinal = findViewById(R.id.rundenzeiten);
+            roundtimefinal.setText(ausgabe);
+        }
         TextView Distance = findViewById(R.id.Distance);
-        Distance.setText("Distance: "+ distance + "km");
+        DecimalFormat f = new DecimalFormat("#0.00");
+        Distance.setText("Distance: "+ f.format(distance) + "km");
         TextView Laufzeit = findViewById(R.id.time);
         Laufzeit.setText("Zeit: " + Runnow.getTimePassed(run.getStartTime(),run.getStopTime()));
         TextView Points = findViewById(R.id.points);
         int punkte = run.getPoints();
         Points.setText("Punkte " + punkte);
+
+    }
+
+    @NonNull
+    private Location getLocation(DataPoint dataPoint) {
+        Location lLast;
+        lLast = new Location("test");
+        lLast.setLatitude(dataPoint.getLatitude());
+        lLast.setLongitude(dataPoint.getLongitude());
+        return lLast;
     }
 
     public void onResume(){
