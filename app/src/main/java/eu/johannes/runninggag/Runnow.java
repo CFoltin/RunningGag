@@ -75,6 +75,21 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
 
             }
         });
+        final Button pause = findViewById(R.id.pauseButton);
+            pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (pause.getText().equals("PAUSE")){
+
+                    pause.setText("Resume");
+                }
+
+                else 
+
+                    pause.setText("PAUSE");
+
+            }
+        });
     }
 
     private MyService myService;
