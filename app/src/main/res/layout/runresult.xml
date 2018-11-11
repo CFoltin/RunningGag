@@ -7,6 +7,8 @@
     android:stretchColumns="0,1"
     android:gravity="center">
 
+    <include layout="@layout/toolbar"></include>
+
     <TableRow
         android:layout_width="fill_parent"
         android:layout_height="0dp"
