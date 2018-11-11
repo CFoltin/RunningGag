@@ -71,6 +71,7 @@ public class MyService extends Service
             data.setTime(location.getTime());
             data.setProvider(location.getProvider());
             data.setAccuracy(location.getAccuracy());
+            data.setAltitude(location.getAltitude());
             dataPoints .add(data);
             if (points>1&&mLastLocation.hasAccuracy()&&mLastLocation.getAccuracy()<500&&location.hasAccuracy()&&location.getAccuracy()<500) {
                 float distanceInMeters = location.distanceTo(mLastLocation);
