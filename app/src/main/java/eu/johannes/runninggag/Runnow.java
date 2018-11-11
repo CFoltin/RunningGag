@@ -84,7 +84,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                     pause.setText("Resume");
                 }
 
-                else 
+                else
 
                     pause.setText("PAUSE");
 
