@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 // ListView Clicked item value
                 String itemValue = (String) runlist.getItemAtPosition(position);
 
-                OnlyOneRun run = runningGagData.getRuns().get(position);
+                OnlyOneRun run = runningGagData.getRuns().get(runningGagData.getRuns().size() - position - 1);
                 Intent intent = new Intent(MainActivity.this, RunResult.class);
                 intent.putExtra("com.example.runs.run", run);
                 startActivity(intent);
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         for (OnlyOneRun run : runningGagData.getRuns()) {
             String theRun = "Lauf vom " + new Date(run.getStartTime()) + "  Gelaufen: " + run.getDistance();
 
-            values.add(theRun);
+            values.add(0, theRun);
 
 
         }

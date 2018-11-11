@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class Runnow extends AppCompatActivity implements MyService.Callback {
@@ -44,7 +45,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
             public void run() {
                 time = System.currentTimeMillis();
                 TextView runtime = findViewById(R.id.time);
-                runtime.setText("Time:" + getTimePassed(startTime, time));
+                runtime.setText("Time: " + getTimePassed(startTime, time));
 
                 handler.postDelayed(this, SWITCH_UPDATE_INTERVAL);
             }
@@ -99,27 +100,30 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
     };
 
     @Override
-    public void gpslocation(double speed, double distance, int points, float accuracy, ArrayList<DataPoint> dataPoints) {
+    public void gpslocation(final double speed, final double distance, final int points, final float accuracy, final ArrayList<DataPoint> dataPoints) {
 
-
-        TextView data = findViewById(R.id.GpsDaten);
-        data.setText("speed:" + speed);
-        TextView distancelol = findViewById(R.id.distance);
-        kmdistance = distance;
-        if (kmdistance >= 1000);
-        {
-            kmtime = startTime;
-
-        }
-        distancelol.setText("Distance:"+distance);
-        loldistance = distance;
-        TextView accuracy1 = findViewById(R.id.accuracy);
-        accuracy1.setText("accuracy:"+accuracy);
-        TextView points1 = findViewById(R.id.points);
-        points1.setText("points:"+points);
-        lolpoints = points;
-        loldatapoints = dataPoints;
-
+        runOnUiThread(new Runnable() {
+                          @Override
+                          public void run() {
+                              TextView data = findViewById(R.id.GpsDaten);
+                              data.setText("Speed: " + speed);
+                              TextView distancelol = findViewById(R.id.distance);
+                              kmdistance = distance;
+                              if (kmdistance >= 1000) ;
+                              {
+                                  kmtime = startTime;
+                              }
+                              DecimalFormat f = new DecimalFormat("#0.00");
+                              distancelol.setText("Distance: " + f.format(distance/1000d) + "km");
+                              loldistance = distance;
+                              TextView accuracy1 = findViewById(R.id.accuracy);
+                              accuracy1.setText("Accuracy: " + accuracy);
+                              TextView points1 = findViewById(R.id.points);
+                              points1.setText("Points: " + points);
+                              lolpoints = points;
+                              loldatapoints = dataPoints;
+                          }
+                      });
     }
 
     public static String getTimePassed(Long lastStarted, long currentTime) {
@@ -164,7 +168,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         }
         handler.postDelayed(runnable, SWITCH_UPDATE_INTERVAL);
         super.onResume();
-        if (myService != null ) {
+        if (myService != null) {
             gpslocation(myService.getmLastLocation().getSpeed(), myService.getDistance(), myService.getPoints(), myService.getmLastLocation().getAccuracy(), myService.getDataPoints());
         }
 
