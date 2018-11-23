@@ -90,7 +90,11 @@ public class MyService extends Service
             }
             DecimalFormat f = new DecimalFormat("#0.00");
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), MyService.class.getName())
-                    .setSmallIcon(android.R.drawable.btn_star)
+                    .setSmallIcon(R.drawable.ic_runnotification)
+
+
+
+
                     .setContentTitle("wie weit du gelaufen bist du lappen")
                     .setContentText("Time: " + Runnow.getDurationString(runtimeInS) + "  Distance:"+ f.format(distance/1000d) + "km")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);

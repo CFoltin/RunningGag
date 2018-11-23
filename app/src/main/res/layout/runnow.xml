@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Speed"
+        android:text="Speed not ready"
         android:textSize="25dp" />
 
     <TextView
@@ -36,7 +36,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Time"
+        android:text="Time not ready"
         android:textSize="25dp" />
 
     <TextView
@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Distance"
+        android:text="Distance not ready"
         android:textSize="25dp" />
 
     <TextView
@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Points"
+        android:text="Points not ready"
         android:textSize="25dp" />
 
     <TextView
@@ -60,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Accuracy"
+        android:text="Accuracy not ready"
         android:textSize="25dp" />
 
     <Button
