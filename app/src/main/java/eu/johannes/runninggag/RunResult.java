@@ -2,6 +2,10 @@ package eu.johannes.runninggag;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,7 +16,9 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +32,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -67,6 +74,8 @@ public class RunResult extends AppCompatActivity {
 
         //inflate and create the map
         setContentView(R.layout.runresult);
+        Toolbar title = findViewById(R.id.toolbar);
+        setSupportActionBar(title);
 
         map = (MapView) findViewById(R.id.mymap);
         map.setTileSource(TileSourceFactory.MAPNIK);
@@ -214,6 +223,9 @@ public class RunResult extends AppCompatActivity {
             case R.id.menu_item_gpx:
                 callGpxAction();
                 break;
+            case R.id.menu_item_image:
+                callPngAction();
+                break;
         }
         return true;
     }
@@ -248,6 +260,26 @@ public class RunResult extends AppCompatActivity {
         startActivity(Intent.createChooser(gpxIntent, "Wohin mit dem GPX File?"));
     }
 
+    private void callPngAction(){
+        //https://www.logicchip.com/share-image-without-saving/
+        Bitmap bitmap =getBitmapFromView(map);
+        try {
+            File file = new File(this.getExternalCacheDir(),"map_image.png");
+            FileOutputStream fOut = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+            file.setReadable(true, false);
+            final Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            intent.setType("image/png");
+            startActivity(Intent.createChooser(intent, "Share image via"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Nullable
     private Uri getTemporaryUriForFile(String gpxFile) {
         Uri gpxURI = null;
@@ -278,5 +310,19 @@ public class RunResult extends AppCompatActivity {
         return gpxFile;
     }
 
+    private Bitmap getBitmapFromView(View view) {
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(),Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        Drawable bgDrawable =view.getBackground();
+        if (bgDrawable!=null) {
+            //has background drawable, then draw it on the canvas
+            bgDrawable.draw(canvas);
+        }   else{
+            //does not have background drawable, then draw white background on the canvas
+            canvas.drawColor(Color.WHITE);
+        }
+        view.draw(canvas);
+        return returnedBitmap;
+    }
 
 }

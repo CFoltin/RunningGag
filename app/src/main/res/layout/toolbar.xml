@@ -8,4 +8,5 @@
         android:textAlignment="center"
     app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
+    <!-- DON'T FORGET TO INITIALIZE THE TOOLBAR IN THE CODE! -->
 </merge>
