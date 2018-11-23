@@ -31,6 +31,7 @@ public class MyService extends Service
         this.activity = activity;
     }
     private long runtimeInS;
+    private double runTimeInH;
     public void unregisterClient() {
         this.activity = null ;
     }
@@ -56,6 +57,7 @@ public class MyService extends Service
     }
     public void setTimeInMS (long pRuntimeInMS){
         runtimeInS = pRuntimeInMS/1000L;
+        runTimeInH = runtimeInS/3600d;
     }
     private class LocationListener implements android.location.LocationListener
     {
@@ -91,12 +93,8 @@ public class MyService extends Service
             DecimalFormat f = new DecimalFormat("#0.00");
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), MyService.class.getName())
                     .setSmallIcon(R.drawable.ic_runnotification)
-
-
-
-
                     .setContentTitle("wie weit du gelaufen bist du lappen")
-                    .setContentText("Time: " + Runnow.getDurationString(runtimeInS) + "  Distance:"+ f.format(distance/1000d) + "km")
+                    .setContentText("Time: " + Runnow.getDurationString(runtimeInS) + "  Distance:"+ f.format(distance/1000d) + "km  " + "Average: " + f.format(distance/1000d/runTimeInH) + "km/h")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
