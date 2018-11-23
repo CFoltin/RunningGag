@@ -48,6 +48,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                 runtime.setText("Time: " + getTimePassed(startTime, time));
 
                 handler.postDelayed(this, SWITCH_UPDATE_INTERVAL);
+                myService.setTimeInMS(time - startTime);
             }
         };
 

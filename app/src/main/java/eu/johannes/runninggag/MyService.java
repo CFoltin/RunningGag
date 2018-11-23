@@ -8,8 +8,11 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class MyService extends Service
@@ -27,6 +30,7 @@ public class MyService extends Service
     public void registerClient(Callback activity){
         this.activity = activity;
     }
+    private long runtimeInS;
     public void unregisterClient() {
         this.activity = null ;
     }
@@ -49,6 +53,9 @@ public class MyService extends Service
 
     public interface Callback{
         public void gpslocation(double speed, double distance, int points, float accuracy, ArrayList<DataPoint> dataPoints);
+    }
+    public void setTimeInMS (long pRuntimeInMS){
+        runtimeInS = pRuntimeInMS/1000L;
     }
     private class LocationListener implements android.location.LocationListener
     {
@@ -81,7 +88,16 @@ public class MyService extends Service
             if(activity!=null) {
                 activity.gpslocation(location.getSpeed(), distance,points,location.getAccuracy(),dataPoints);
             }
+            DecimalFormat f = new DecimalFormat("#0.00");
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), MyService.class.getName())
+                    .setSmallIcon(android.R.drawable.btn_star)
+                    .setContentTitle("wie weit du gelaufen bist du lappen")
+                    .setContentText("Time: " + Runnow.getDurationString(runtimeInS) + "  Distance:"+ f.format(distance/1000d) + "km")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
+                 // notificationId is a unique int for each notification that you must define
+                notificationManager.notify(15, mBuilder.build());
         }
 
         @Override
