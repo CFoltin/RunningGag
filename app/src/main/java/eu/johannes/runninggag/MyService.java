@@ -30,8 +30,8 @@ public class MyService extends Service
     public void registerClient(Callback activity){
         this.activity = activity;
     }
-    private long runtimeInS;
-    private double runTimeInH;
+    private long startTimeInMS;
+    private long time;
     public void unregisterClient() {
         this.activity = null ;
     }
@@ -55,9 +55,10 @@ public class MyService extends Service
     public interface Callback{
         public void gpslocation(double speed, double distance, int points, float accuracy, ArrayList<DataPoint> dataPoints);
     }
-    public void setTimeInMS (long pRuntimeInMS){
-        runtimeInS = pRuntimeInMS/1000L;
-        runTimeInH = runtimeInS/3600d;
+    public void setStartTimeInMS (long pStartRuntimeInMS){
+        startTimeInMS = pStartRuntimeInMS;
+
+
     }
     private class LocationListener implements android.location.LocationListener
     {
@@ -81,6 +82,7 @@ public class MyService extends Service
             data.setProvider(location.getProvider());
             data.setAccuracy(location.getAccuracy());
             data.setAltitude(location.getAltitude());
+            time = System.currentTimeMillis();
             dataPoints .add(data);
             if (points>1&&mLastLocation.hasAccuracy()&&mLastLocation.getAccuracy()<500&&location.hasAccuracy()&&location.getAccuracy()<500) {
                 float distanceInMeters = location.distanceTo(mLastLocation);
@@ -94,7 +96,7 @@ public class MyService extends Service
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), MyService.class.getName())
                     .setSmallIcon(R.drawable.ic_runnotification)
                     .setContentTitle("wie weit du gelaufen bist du lappen")
-                    .setContentText("Time: " + Runnow.getDurationString(runtimeInS) + "  Distance:"+ f.format(distance/1000d) + "km  " + "Average: " + f.format(distance/1000d/runTimeInH) + "km/h")
+                    .setContentText("Time: " + Runnow.getDurationString((time-startTimeInMS)/1000) + "  Distance:"+ f.format(distance/1000d) + "km  " + "Average: " + f.format(distance/(time-startTimeInMS)) + "km/h")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 

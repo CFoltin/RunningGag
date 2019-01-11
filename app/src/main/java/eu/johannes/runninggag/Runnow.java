@@ -18,6 +18,11 @@ import android.widget.Toast;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+
+/*
+Hier werden die werte angezeigt(in der App) bzw. der stopknopf
+
+ */
 public class Runnow extends AppCompatActivity implements MyService.Callback {
     public static final int SWITCH_UPDATE_INTERVAL = 1000;
     private Intent serviceIntent;
@@ -38,7 +43,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         serviceIntent = new Intent(this, MyService.class);
         startService(serviceIntent);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        startTime = System.currentTimeMillis();
+
         handler = new Handler();
         runnable = new Runnable() {
             @Override
@@ -48,7 +53,6 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                 runtime.setText("Time: " + getTimePassed(startTime, time));
 
                 handler.postDelayed(this, SWITCH_UPDATE_INTERVAL);
-                myService.setTimeInMS(time - startTime);
             }
         };
 
@@ -105,7 +109,8 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
             MyService.LocalBinder binder = (MyService.LocalBinder) service;
             myService = binder.getServiceInstance(); //Get instance of your service!
             myService.registerClient(Runnow.this); //Activity register in the service as client for callabcks!
-
+            startTime = System.currentTimeMillis();
+            myService.setStartTimeInMS(startTime);
         }
 
         @Override
