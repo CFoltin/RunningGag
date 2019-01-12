@@ -119,9 +119,7 @@ public class RunResult extends AppCompatActivity {
 
         TextView minprokm = findViewById(R.id.MinproKM);
         double distance = run.getDistance();
-        long startime = run.getStartTime();
-        long stoptime = run.getStopTime();
-        long time = stoptime - startime;
+        long time = run.caculateTotalRunTime();
         distance = distance / 1000d;
 
         time = time / 1000l;
@@ -134,41 +132,41 @@ public class RunResult extends AppCompatActivity {
             minprokm.setText("Du faule Sau");
         }
         DecimalFormat f = new DecimalFormat("#0.00");
-        if (run.getPoints() > 0) {
-            double distance2 = 0;
-            double totalDistance = 0;
-            long lasttime = run.getStartTime();
-            DataPoint lastPoint = run.getDataPoints().get(0);
-            String ausgabe = "Rundenzeiten:\n";
-            for (DataPoint dataPoint : run.getDataPoints()) {
-                double distanceToLastPoint = getLocation(dataPoint).distanceTo(getLocation(lastPoint));
-                distance2 = distance2 + distanceToLastPoint;
-                totalDistance += distanceToLastPoint;
-                if (distance2 > 1000) {
-                    long roundtime = (long) ((dataPoint.getTime() - lasttime)/distance2);
-                    long totalRoundtime = (long) ((dataPoint.getTime() - run.getStartTime()) / totalDistance);
-                    ausgabe = ausgabe + "Dist.: " + f.format(totalDistance/1000d) + "km; "
-                            + "Runde: " + Runnow.getDurationString(roundtime)
-                            + "; "
-                            + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + "\n";
-                    distance2 = totalDistance % 1000;
-                    lasttime = dataPoint.getTime();
-                }
-                lastPoint = dataPoint;
-            }
-            long roundtime = (long) ((lastPoint.getTime() - lasttime)/distance2);
-            long totalRoundtime = (long) ((lastPoint.getTime() - run.getStartTime()) / totalDistance);
-            ausgabe = ausgabe + "Dist.: " + f.format(totalDistance/1000d) + "km; "
-                    + "Runde: " + Runnow.getDurationString(roundtime)
-                    + "; "
-                    + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + "\n";
-            TextView roundtimefinal = findViewById(R.id.rundenzeiten);
-            roundtimefinal.setText(ausgabe);
-        }
+//        if (run.getPoints() > 0) {
+//            double distance2 = 0;
+//            double totalDistance = 0;
+//            long lasttime = run.getStartTime();
+//            DataPoint lastPoint = run.getDataPoints().get(0);
+//            String ausgabe = "Rundenzeiten:\n";
+//            for (DataPoint dataPoint : run.getDataPoints()) {
+//                double distanceToLastPoint = getLocation(dataPoint).distanceTo(getLocation(lastPoint));
+//                distance2 = distance2 + distanceToLastPoint;
+//                totalDistance += distanceToLastPoint;
+//                if (distance2 > 1000) {
+//                    long roundtime = (long) ((dataPoint.getTime() - lasttime)/distance2);
+//                    long totalRoundtime = (long) ((dataPoint.getTime() - run.getStartTime()) / totalDistance);
+//                    ausgabe = ausgabe + "Dist.: " + f.format(totalDistance/1000d) + "km; "
+//                            + "Runde: " + Runnow.getDurationString(roundtime)
+//                            + "; "
+//                            + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + "\n";
+//                    distance2 = totalDistance % 1000;
+//                    lasttime = dataPoint.getTime();
+//                }
+//                lastPoint = dataPoint;
+//            }
+//            long roundtime = (long) ((lastPoint.getTime() - lasttime)/distance2);
+//            long totalRoundtime = (long) ((lastPoint.getTime() - run.getStartTime()) / totalDistance);
+//            ausgabe = ausgabe + "Dist.: " + f.format(totalDistance/1000d) + "km; "
+//                    + "Runde: " + Runnow.getDurationString(roundtime)
+//                    + "; "
+//                    + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + "\n";
+//            TextView roundtimefinal = findViewById(R.id.rundenzeiten);
+//            roundtimefinal.setText(ausgabe);
+//        }
         TextView Distance = findViewById(R.id.Distance);
         Distance.setText("Distanz: "+ f.format(distance) + "km");
         TextView Laufzeit = findViewById(R.id.time);
-        Laufzeit.setText("Zeit: " + Runnow.getTimePassed(run.getStartTime(),run.getStopTime()));
+        Laufzeit.setText("Zeit: " + Runnow.getDurationString(time));
         TextView Points = findViewById(R.id.points);
         int punkte = run.getPoints();
         Points.setText("Punkte: " + punkte);

@@ -25,13 +25,15 @@ public class MyService extends Service
     private final IBinder mBinder = new LocalBinder();
     private double distance;
     private int points;
+    private boolean isPaused;
     private ArrayList <DataPoint> dataPoints = new ArrayList<>();
     Location mLastLocation = new Location("test");
     public void registerClient(Callback activity){
         this.activity = activity;
     }
-    private long startTimeInMS;
-    private long time;
+    //private long startTimeInMS;
+    private long alltime;
+
     public void unregisterClient() {
         this.activity = null ;
     }
@@ -52,14 +54,54 @@ public class MyService extends Service
         return mLastLocation;
     }
 
+    public void setStartTimeInMS (long pStartRuntimeInMS){
+
+        RunTime s = new RunTime();
+        s.startime = pStartRuntimeInMS;
+        time.add(s);
+    }
+    public void setPause() {
+        RunTime p = time.get(time.size()-1);
+        p.stoptime = System.currentTimeMillis();
+        isPaused = true;
+
+
+
+    }
+
+    public void setResume() {
+        RunTime s = new RunTime();
+        s.startime = System.currentTimeMillis();
+        time.add(s);
+        isPaused = false;
+    }
+
+    public void setTheEnd() {
+        setPause();
+    }
+
     public interface Callback{
         public void gpslocation(double speed, double distance, int points, float accuracy, ArrayList<DataPoint> dataPoints);
     }
-    public void setStartTimeInMS (long pStartRuntimeInMS){
-        startTimeInMS = pStartRuntimeInMS;
 
-
+    public long caculateTotalRunTime (){
+        long totalRunTime = 0;
+        for (RunTime run : time){
+            if (run.stoptime > 0) {
+                totalRunTime = totalRunTime + run.stoptime - run.startime;
+            }
+            else {
+                totalRunTime = totalRunTime + System.currentTimeMillis() - run.startime;
+            }
+        }
+        return totalRunTime;
     }
+
+    public ArrayList<RunTime> getTime() {
+        return time;
+    }
+
+    private ArrayList <RunTime> time = new ArrayList<>();
     private class LocationListener implements android.location.LocationListener
     {
 
@@ -72,6 +114,9 @@ public class MyService extends Service
         @Override
         public void onLocationChanged(Location location)
         {
+            if (isPaused){
+                return;
+            }
             Log.e(TAG, "onLocationChanged: " + location);
             points = points+1;
             DataPoint data = new DataPoint();
@@ -82,7 +127,7 @@ public class MyService extends Service
             data.setProvider(location.getProvider());
             data.setAccuracy(location.getAccuracy());
             data.setAltitude(location.getAltitude());
-            time = System.currentTimeMillis();
+            alltime = System.currentTimeMillis();
             dataPoints .add(data);
             if (points>1&&mLastLocation.hasAccuracy()&&mLastLocation.getAccuracy()<500&&location.hasAccuracy()&&location.getAccuracy()<500) {
                 float distanceInMeters = location.distanceTo(mLastLocation);
@@ -96,7 +141,7 @@ public class MyService extends Service
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), MyService.class.getName())
                     .setSmallIcon(R.drawable.ic_runnotification)
                     .setContentTitle("wie weit du gelaufen bist du lappen")
-                    .setContentText("Time: " + Runnow.getDurationString((time-startTimeInMS)/1000) + "  Distance:"+ f.format(distance/1000d) + "km  " + "Average: " + f.format(distance/(time-startTimeInMS)) + "km/h")
+                    .setContentText("Time: " + Runnow.getDurationString(caculateTotalRunTime()/1000) + "  Distance:"+ f.format(distance/1000d) + "km  " + "Average: " + f.format(distance/caculateTotalRunTime()) + "km/h")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 
