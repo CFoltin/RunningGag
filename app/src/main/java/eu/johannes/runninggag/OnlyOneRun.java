@@ -119,6 +119,13 @@ public class OnlyOneRun implements Parcelable {
         editor.commit();
     }
 
+    public void removeDataPoints(Context context){
+        SharedPreferences preferences = context.getSharedPreferences(getDataPointFileName(), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("data");
+        editor.commit();
+    }
+
     @NonNull
     private String getDataPointFileName() {
         return "point_data_" + "_" + getStartTime() + getStopTime();

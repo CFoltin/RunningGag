@@ -2,11 +2,13 @@ package eu.johannes.runninggag;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -70,9 +72,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                // ListView Clicked item index
-                int itemPosition = position;
-
                 // ListView Clicked item value
                 String itemValue = (String) runlist.getItemAtPosition(position);
 
@@ -82,7 +81,42 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        runlist.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                // ListView Clicked item value
+                String itemValue = (String) runlist.getItemAtPosition(position);
+                final int runIndex = runningGagData.getRuns().size() - position - 1;
+                final OnlyOneRun runToBeDeleted = runningGagData.getRuns().get(runIndex);
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                runToBeDeleted.removeDataPoints(MainActivity.this);
+                                runningGagData.getRuns().remove(runIndex);
+                                runningGagData.storeData(MainActivity.this);
+                                setRunlistAdapter();
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setMessage("Are you sure to delete the run from " + new Date(runToBeDeleted.getStartTime()) + "?").setPositiveButton("Yes", dialogClickListener)
+                        .setNegativeButton("No", dialogClickListener).show();
+
+                return true;
+            }
+        });
     }
+
+
 
     private void setRunlistAdapter() {
         ArrayList<String> values = new ArrayList<>();
