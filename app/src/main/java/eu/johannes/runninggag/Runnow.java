@@ -66,6 +66,9 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                 myRun.setDistance(loldistance);
                 myRun.setPoints(lolpoints);
                 myRun.setTime(myService.getTime());
+                // set start and stop time to store the points correctly.
+                myRun.setStartTime(myService.getTime().get(0).startime);
+                myRun.setStopTime(myService.getTime().get(myService.getTime().size()-1).stoptime);
                 myRun.setDataPoints(loldatapoints);
                 myRun.storeDataPoints(Runnow.this);
                 runningGagData.getRuns().add(myRun);
@@ -76,8 +79,6 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                 unbindService(mConnection);
                 stopService(serviceIntent);
                 startActivity(new Intent(Runnow.this, MainActivity.class));
-
-
             }
         });
         final Button pause = findViewById(R.id.pauseButton);
@@ -125,10 +126,10 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         runOnUiThread(new Runnable() {
                           @Override
                           public void run() {
-                              TextView data = findViewById(R.id.GpsDaten);
-                              data.setText("Speed: " + speed);
-                              TextView distancelol = findViewById(R.id.distance);
                               DecimalFormat f = new DecimalFormat("#0.00");
+                              TextView data = findViewById(R.id.GpsDaten);
+                              data.setText("Speed: " + f.format(speed));
+                              TextView distancelol = findViewById(R.id.distance);
                               distancelol.setText("Distance: " + f.format(distance/1000d) + "km");
                               loldistance = distance;
                               TextView accuracy1 = findViewById(R.id.accuracy);

@@ -64,9 +64,6 @@ public class MyService extends Service
         RunTime p = time.get(time.size()-1);
         p.stoptime = System.currentTimeMillis();
         isPaused = true;
-
-
-
     }
 
     public void setResume() {
@@ -77,7 +74,10 @@ public class MyService extends Service
     }
 
     public void setTheEnd() {
-        setPause();
+        if(!isPaused) {
+            // if there is already a pause, we don't add another one.
+            setPause();
+        }
     }
 
     public interface Callback{

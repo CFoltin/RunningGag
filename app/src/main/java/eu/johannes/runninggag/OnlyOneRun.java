@@ -16,8 +16,25 @@ import java.util.Collection;
 public class OnlyOneRun implements Parcelable {
     private double distance;
     private int points;
-//    private long startTime;
-//    private long stopTime;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getStopTime() {
+        return stopTime;
+    }
+
+    public void setStopTime(long stopTime) {
+        this.stopTime = stopTime;
+    }
+
+    private long startTime;
+    private long stopTime;
     private transient ArrayList<DataPoint> dataPoints = new ArrayList<>();
 
     public ArrayList<RunTime> getTime() {

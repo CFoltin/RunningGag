@@ -28,9 +28,17 @@ public class RunningGagData {
         for (OnlyOneRun run : runningGagData.getRuns()){
             if(!run.getDataPoints().isEmpty()){
                 run.storeDataPoints(context);
+                run.getDataPoints().clear();
+                changed = true;
             }
-            run.getDataPoints().clear();
-            changed = true;
+            if(run.getTime().isEmpty()){
+                // the new time array for pauses is not present. Create it.
+                RunTime runTime = new RunTime();
+                runTime.startime = run.getStartTime();
+                runTime.stoptime = run.getStopTime();
+                run.getTime().add(runTime);
+                changed = true;
+            }
         }
         if(changed) {
             runningGagData.storeData(context);

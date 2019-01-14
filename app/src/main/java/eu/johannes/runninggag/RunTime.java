@@ -22,4 +22,12 @@ public class RunTime {
     public void setStoptime(long stoptime) {
         this.stoptime = stoptime;
     }
+
+    @Override
+    public String toString() {
+        return "RunTime{" +
+                "startime=" + startime +
+                ", stoptime=" + stoptime +
+                '}';
+    }
 }
