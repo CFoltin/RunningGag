@@ -18,18 +18,22 @@ import android.widget.Toast;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+
+/*
+Hier werden die werte angezeigt(in der App) bzw. der stopknopf
+
+ */
 public class Runnow extends AppCompatActivity implements MyService.Callback {
     public static final int SWITCH_UPDATE_INTERVAL = 1000;
     private Intent serviceIntent;
     private Runnable runnable;
     private Handler handler;
-    private long startTime;
+    //private long startTime;
     private long time;
     private double loldistance;
     private int lolpoints;
     private ArrayList<DataPoint> loldatapoints;
-    private double kmdistance;
-    private long kmtime;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,31 +42,33 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         serviceIntent = new Intent(this, MyService.class);
         startService(serviceIntent);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
-        startTime = System.currentTimeMillis();
+
         handler = new Handler();
         runnable = new Runnable() {
             @Override
             public void run() {
                 time = System.currentTimeMillis();
                 TextView runtime = findViewById(R.id.time);
-                runtime.setText("Time: " + getTimePassed(startTime, time));
+                runtime.setText("Time: " + getDurationString(myService.caculateTotalRunTime()/1000));
 
                 handler.postDelayed(this, SWITCH_UPDATE_INTERVAL);
-                myService.setTimeInMS(time - startTime);
             }
         };
 
 
-        final Button setService = findViewById(R.id.stopService);
-        setService.setOnClickListener(new View.OnClickListener() {
+        final Button stopService = findViewById(R.id.stopService);
+        stopService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                myService.setTheEnd();
                 RunningGagData runningGagData = RunningGagData.loadData(Runnow.this);
                 OnlyOneRun myRun = new OnlyOneRun();
                 myRun.setDistance(loldistance);
                 myRun.setPoints(lolpoints);
-                myRun.setStartTime(startTime);
-                myRun.setStopTime(System.currentTimeMillis());
+                myRun.setTime(myService.getTime());
+                // set start and stop time to store the points correctly.
+                myRun.setStartTime(myService.getTime().get(0).startime);
+                myRun.setStopTime(myService.getTime().get(myService.getTime().size()-1).stoptime);
                 myRun.setDataPoints(loldatapoints);
                 myRun.storeDataPoints(Runnow.this);
                 runningGagData.getRuns().add(myRun);
@@ -73,8 +79,6 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                 unbindService(mConnection);
                 stopService(serviceIntent);
                 startActivity(new Intent(Runnow.this, MainActivity.class));
-
-
             }
         });
         final Button pause = findViewById(R.id.pauseButton);
@@ -84,12 +88,13 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                 if (pause.getText().equals("PAUSE")){
 
                     pause.setText("Resume");
+                    myService.setPause();
                 }
 
-                else
-
+                else {
                     pause.setText("PAUSE");
-
+                    myService.setResume();
+                }
             }
         });
     }
@@ -105,7 +110,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
             MyService.LocalBinder binder = (MyService.LocalBinder) service;
             myService = binder.getServiceInstance(); //Get instance of your service!
             myService.registerClient(Runnow.this); //Activity register in the service as client for callabcks!
-
+            myService.setStartTimeInMS(System.currentTimeMillis());
         }
 
         @Override
@@ -121,15 +126,10 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         runOnUiThread(new Runnable() {
                           @Override
                           public void run() {
-                              TextView data = findViewById(R.id.GpsDaten);
-                              data.setText("Speed: " + speed);
-                              TextView distancelol = findViewById(R.id.distance);
-                              kmdistance = distance;
-                              if (kmdistance >= 1000) ;
-                              {
-                                  kmtime = startTime;
-                              }
                               DecimalFormat f = new DecimalFormat("#0.00");
+                              TextView data = findViewById(R.id.GpsDaten);
+                              data.setText("Speed: " + f.format(speed));
+                              TextView distancelol = findViewById(R.id.distance);
                               distancelol.setText("Distance: " + f.format(distance/1000d) + "km");
                               loldistance = distance;
                               TextView accuracy1 = findViewById(R.id.accuracy);

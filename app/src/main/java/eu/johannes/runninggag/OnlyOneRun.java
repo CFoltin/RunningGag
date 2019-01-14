@@ -9,35 +9,13 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import eu.johannes.runninggag.fitness22.Fitness22;
-
 public class OnlyOneRun implements Parcelable {
     private double distance;
     private int points;
-    private long startTime;
-    private long stopTime;
-    private transient ArrayList<DataPoint> dataPoints = new ArrayList<>();
-
-    public ArrayList<DataPoint> getDataPoints() {
-        return dataPoints;
-    }
-
-    public void setDataPoints(ArrayList<DataPoint> dataPoints) {
-        this.dataPoints = dataPoints;
-    }
-
-    public int getPoints() {
-        return points;
-    }
-
-    public void setPoints(int points) {
-        this.points = points;
-    }
 
     public long getStartTime() {
         return startTime;
@@ -53,6 +31,36 @@ public class OnlyOneRun implements Parcelable {
 
     public void setStopTime(long stopTime) {
         this.stopTime = stopTime;
+    }
+
+    private long startTime;
+    private long stopTime;
+    private transient ArrayList<DataPoint> dataPoints = new ArrayList<>();
+
+    public ArrayList<RunTime> getTime() {
+        return time;
+    }
+
+    public void setTime(ArrayList<RunTime> time) {
+        this.time = time;
+    }
+
+    private ArrayList <RunTime> time = new ArrayList<>();
+
+    public ArrayList<DataPoint> getDataPoints() {
+        return dataPoints;
+    }
+
+    public void setDataPoints(ArrayList<DataPoint> dataPoints) {
+        this.dataPoints = dataPoints;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 
     public double getDistance() {
@@ -114,5 +122,13 @@ public class OnlyOneRun implements Parcelable {
     @NonNull
     private String getDataPointFileName() {
         return "point_data_" + "_" + getStartTime() + getStopTime();
+    }
+    public long caculateTotalRunTime (){
+        long totalRunTime = 0;
+        for (RunTime run : time){
+
+                totalRunTime = totalRunTime + run.stoptime - run.startime;
+        }
+        return totalRunTime;
     }
 }
