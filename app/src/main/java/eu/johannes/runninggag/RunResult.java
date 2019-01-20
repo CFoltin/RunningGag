@@ -132,8 +132,9 @@ public class RunResult extends AppCompatActivity {
         }
         DecimalFormat f = new DecimalFormat("#0.00");
         if (run.getPoints() > 0 && !run.getTime().isEmpty()) {
+            // at the beginning, the last point is the first.
             DataPoint lastDataPoint = run.getDataPoints().get(run.getDataPoints().size() - 1);
-            double distance2 = 0;
+            double distanceSinceLastKilometer = 0;
             double totalDistance = 0;
             int timeIndex = 0;
             long lasttime = run.getTime().get(timeIndex).startime;
@@ -168,25 +169,24 @@ public class RunResult extends AppCompatActivity {
                 }
                 // ok, same index. Continue to calculate.
                 // time has advanced:
-                accumulatedTime += lasttime - dataPoint.getTime();
-                accumulatedRoundTime += lasttime - dataPoint.getTime();
+                accumulatedTime += dataPoint.getTime() - lasttime;
+                accumulatedRoundTime += dataPoint.getTime() - lasttime ;
                 // distance has advanced, too.
                 double distanceToLastPoint = getLocation(dataPoint).distanceTo(getLocation(lastPoint));
-                distance2 = distance2 + distanceToLastPoint;
+                distanceSinceLastKilometer = distanceSinceLastKilometer + distanceToLastPoint;
                 totalDistance += distanceToLastPoint;
-                // FIXME: Doesn't work, when the last segment is a pause!
-                if (distance2 > 1000 || dataPoint == lastDataPoint) {
-                    long roundtime = (long) (accumulatedRoundTime/distance2);
+                if (distanceSinceLastKilometer > 1000 || dataPoint == lastDataPoint) {
+                    long roundtime = (long) (accumulatedRoundTime/distanceSinceLastKilometer);
                     long totalRoundtime = (long) (accumulatedTime / totalDistance);
                     ausgabe = ausgabe + "Dist.: " + f.format(totalDistance/1000d) + "km; "
                             + "Runde: " + Runnow.getDurationString(roundtime)
                             + "; "
                             + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + "\n";
-                    distance2 = totalDistance % 1000;
-                    lasttime = dataPoint.getTime();
+                    distanceSinceLastKilometer = totalDistance % 1000;
                     // reset the round time.
                     accumulatedRoundTime = 0;
                 }
+                lasttime = dataPoint.getTime();
                 lastPoint = dataPoint;
             }
             TextView roundtimefinal = findViewById(R.id.rundenzeiten);
