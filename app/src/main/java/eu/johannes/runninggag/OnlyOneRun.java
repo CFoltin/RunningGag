@@ -106,7 +106,9 @@ public class OnlyOneRun implements Parcelable {
         }.getType();
         Collection<DataPoint> dataPoints = gson.fromJson(data, collectionType);
         getDataPoints().clear();
-        getDataPoints().addAll(dataPoints);
+        if(dataPoints != null) {
+            getDataPoints().addAll(dataPoints);
+        }
     }
 
 

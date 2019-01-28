@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, Runnow.class));
             }
         });
-
         Log.d(TAG, "Nachher: ");
         runlist = (ListView) findViewById(R.id.runs);
 

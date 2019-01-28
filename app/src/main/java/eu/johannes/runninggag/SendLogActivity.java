@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -38,7 +39,10 @@ public class SendLogActivity extends AppCompatActivity implements View.OnClickLi
                 sendLogFile();
             }
         });
-
+        Bundle bundle = getIntent().getExtras();
+        TextView errorDescription = findViewById(R.id.errorDescription);
+        errorDescription.setText(bundle.getString("error"));
+        errorDescription.setMovementMethod(new ScrollingMovementMethod());
     }
 
     @Override
