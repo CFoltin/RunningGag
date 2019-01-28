@@ -140,4 +140,22 @@ public class OnlyOneRun implements Parcelable {
         }
         return totalRunTime;
     }
+
+    public Integer getTimeSegment(DataPoint dataPoint){
+        int newDataPointTimeIndex = 0;
+        boolean timeSegmentFound = false;
+        for (RunTime timeSegment : getTime()){
+            if(dataPoint.getTime()>= timeSegment.startime && dataPoint.getTime()<= timeSegment.stoptime){
+                // found
+                timeSegmentFound = true;
+                break;
+            }
+            newDataPointTimeIndex++;
+        }
+        if(!timeSegmentFound){
+            // ok, point seems inside of a pause. drop it.
+            return null;
+        }
+        return newDataPointTimeIndex;
+    }
 }

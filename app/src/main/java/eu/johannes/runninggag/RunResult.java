@@ -91,12 +91,29 @@ public class RunResult extends AppCompatActivity {
         List<GeoPoint> geoPoints = new ArrayList<>();
         // load points
         run.loadDataPoints(this);
+        ArrayList<Polyline> lines = new ArrayList<>();
+        int timeSegmentOfLastDataPoint = 0;
         for(DataPoint dataPoint : run.getDataPoints()){
-
+            // determine time segment of this point:
+            Integer newDataPointTimeIndex = run.getTimeSegment(dataPoint);
+            if(newDataPointTimeIndex == null){
+                continue;
+            }
+            if(newDataPointTimeIndex != timeSegmentOfLastDataPoint && !geoPoints.isEmpty()){
+                Polyline line = new Polyline();
+                line.setPoints(geoPoints);
+                lines.add(line);
+                geoPoints.clear();
+            }
+            timeSegmentOfLastDataPoint = newDataPointTimeIndex;
             //Log.d("RunResult", String.valueOf(dataPoint));
             GeoPoint geo = new GeoPoint(dataPoint.getLatitude(), dataPoint.getLongitude());
             geoPoints.add(geo);
-
+        }
+        if(!geoPoints.isEmpty()){
+            Polyline line = new Polyline();
+            line.setPoints(geoPoints);
+            lines.add(line);
         }
         IMapController mapController = map.getController();
         mapController.setZoom(15);
@@ -105,16 +122,16 @@ public class RunResult extends AppCompatActivity {
             GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
             mapController.setCenter(startPoint);
         }
-        Polyline line = new Polyline();   //see note below!
-        line.setPoints(geoPoints);
-        line.setOnClickListener(new Polyline.OnClickListener() {
-            @Override
-            public boolean onClick(Polyline polyline, MapView mapView, GeoPoint eventPos) {
-                Toast.makeText(mapView.getContext(), "polyline with " + polyline.getPoints().size() + "pts was tapped", Toast.LENGTH_LONG).show();
-                return false;
-            }
-        });
-        map.getOverlayManager().add(line);
+        for(Polyline line : lines) {
+            line.setOnClickListener(new Polyline.OnClickListener() {
+                @Override
+                public boolean onClick(Polyline polyline, MapView mapView, GeoPoint eventPos) {
+                    Toast.makeText(mapView.getContext(), "polyline with " + polyline.getPoints().size() + "pts was tapped", Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            });
+            map.getOverlayManager().add(line);
+        }
         createShareAction();
 
         TextView minprokm = findViewById(R.id.MinproKM);
@@ -145,17 +162,8 @@ public class RunResult extends AppCompatActivity {
             String ausgabe = "Rundenzeiten:\n";
             for (DataPoint dataPoint : run.getDataPoints()) {
                 // determine segment, where this point is located in:
-                int newDataPointTimeIndex = 0;
-                boolean timeSegmentFound = false;
-                for (RunTime timeSegment : run.getTime()){
-                    if(dataPoint.getTime()>= timeSegment.startime && dataPoint.getTime()<= timeSegment.stoptime){
-                        // found
-                        timeSegmentFound = true;
-                        break;
-                    }
-                    newDataPointTimeIndex++;
-                }
-                if(!timeSegmentFound){
+                Integer newDataPointTimeIndex = run.getTimeSegment(dataPoint);
+                if(newDataPointTimeIndex == null){
                     // ok, point seems inside of a pause. drop it.
                     continue;
                 }
