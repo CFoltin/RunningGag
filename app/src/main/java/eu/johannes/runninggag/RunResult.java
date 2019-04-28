@@ -159,6 +159,7 @@ public class RunResult extends AppCompatActivity {
             DataPoint lastPoint = run.getDataPoints().get(0);
             long accumulatedTime = 0;
             long accumulatedRoundTime = 0;
+            boolean pauseOccurredInThisRound = false;
             String ausgabe = "Rundenzeiten:\n";
             for (DataPoint dataPoint : run.getDataPoints()) {
                 // determine segment, where this point is located in:
@@ -173,6 +174,7 @@ public class RunResult extends AppCompatActivity {
                     lastPoint = dataPoint;
                     lasttime = dataPoint.getTime();
                     startTime = lasttime;
+                    pauseOccurredInThisRound = true;
                     continue;
                 }
                 // ok, same index. Continue to calculate.
@@ -189,10 +191,11 @@ public class RunResult extends AppCompatActivity {
                     ausgabe = ausgabe + "Dist.: " + f.format(totalDistance/1000d) + "km; "
                             + "Runde: " + Runnow.getDurationString(roundtime)
                             + "; "
-                            + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + "\n";
+                            + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + ((pauseOccurredInThisRound)?" P":"") + "\n";
                     distanceSinceLastKilometer = totalDistance % 1000;
                     // reset the round time.
                     accumulatedRoundTime = 0;
+                    pauseOccurredInThisRound = false;
                 }
                 lasttime = dataPoint.getTime();
                 lastPoint = dataPoint;

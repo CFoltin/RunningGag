@@ -33,6 +33,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
     private double loldistance;
     private int lolpoints;
     private ArrayList<DataPoint> loldatapoints;
+    private boolean mRunStopped = false;
 
 
     @Override
@@ -42,6 +43,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         serviceIntent = new Intent(this, MyService.class);
         startService(serviceIntent);
         bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        mRunStopped = false;
 
         handler = new Handler();
         runnable = new Runnable() {
@@ -60,6 +62,10 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         stopService.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(mRunStopped){
+                    return;
+                }
+                mRunStopped = true;
                 myService.setTheEnd();
                 RunningGagData runningGagData = RunningGagData.loadData(Runnow.this);
                 OnlyOneRun myRun = new OnlyOneRun();

@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/list_content"
         android:textColor="#a4f7ff00"
-        android:gravity="center"
+        android:gravity="left"
         android:text="sample"
         android:layout_margin="4dip"
         android:layout_width="fill_parent"

@@ -26,6 +26,9 @@ import com.google.gson.reflect.TypeToken;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -119,12 +122,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setRunlistAdapter() {
         ArrayList<String> values = new ArrayList<>();
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        DecimalFormat f = new DecimalFormat("#0.00");
         for (OnlyOneRun run : runningGagData.getRuns()) {
-            String theRun = "Lauf vom " + new Date(run.getStartTime()) + "  Gelaufen: " + run.getDistance();
-
+            String theRun = "Lauf vom " + df.format(new Date(run.getStartTime())) + "  Gelaufen: " + f.format(run.getDistance()/1000d) + " km";
             values.add(0, theRun);
-
-
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
