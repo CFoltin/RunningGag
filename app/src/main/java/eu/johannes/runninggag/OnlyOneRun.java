@@ -63,6 +63,9 @@ public class OnlyOneRun implements Parcelable {
         this.points = points;
     }
 
+    /**
+     * @return Distance in meters
+     */
     public double getDistance() {
         return distance;
     }

@@ -20,8 +20,8 @@
         android:text="Start" />
 
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
         android:stretchColumns="0,1">
@@ -30,21 +30,42 @@
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_margin="1dp"
-            android:layout_weight="1"
-            >
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/gesamtgelaufentext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Insgesamt Gelaufen: "
+                android:textColor="#a4f7ff00" />
+
+            <TextView
+                android:id="@+id/gesamtgelaufen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:textColor="#a4f7ff00" />
+
+                </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1">
         <TextView
-            android:id="@+id/gesamtgelaufentext"
+            android:id="@+id/diesesjahrgelaufentext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#a4f7ff00"
-            android:text="Insgesamt Gelaufen: " />
+            android:text="Dieses Jahr Gelaufen: "
+            android:textColor="#a4f7ff00" />
 
         <TextView
-            android:id="@+id/geasmtgelaufen"
+            android:id="@+id/diesesjahrgelaufen"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#a4f7ff00"
-            android:text="TextView" />
+            android:text="TextView"
+            android:textColor="#a4f7ff00" />
         </TableRow>
     </TableLayout>
 

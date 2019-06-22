@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICKFILE_RESULT_CODE = 1;
     private RunningGagData runningGagData;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,8 +119,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         DecimalFormat f = new DecimalFormat("#0.00");
-        TextView Gesamtgelaufen = findViewById(R.id.geasmtgelaufen);
-        Gesamtgelaufen.setText(f.format(runningGagData.caculateTotalRunDistance()) + "km");
+        TextView gesamtgelaufen = findViewById(R.id.gesamtgelaufen);
+        gesamtgelaufen.setText(f.format(runningGagData.caculateTotalRunDistance()) + "km");
+        TextView yeargelaufen = findViewById(R.id.diesesjahrgelaufen);
+        yeargelaufen.setText(f.format(runningGagData.caculateYearRunDistance()) + "km");
     }
 
 

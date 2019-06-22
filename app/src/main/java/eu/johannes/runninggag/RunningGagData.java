@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class RunningGagData {
     public ArrayList<OnlyOneRun> getRuns() {
@@ -49,9 +51,28 @@ public class RunningGagData {
         double totalrundistance = 0;
         for (OnlyOneRun run :runs){
 
-            totalrundistance = totalrundistance + run.getDistance();
+            totalrundistance = totalrundistance + run.getDistance() / 1000d;
         }
         return totalrundistance;
+    }
+
+    public double caculateYearRunDistance (){
+        double yearrundistance = 0;
+        Calendar calnow = Calendar.getInstance();
+        double year = calnow.get(Calendar.YEAR);
+        for (OnlyOneRun run :runs){
+            Date datum = new Date(run.getStartTime());
+            Calendar datumyear = Calendar.getInstance();
+            datumyear.setTime(datum);
+            if ( year == datumyear.get(Calendar.YEAR))
+            {
+
+                yearrundistance = yearrundistance + run.getDistance() / 1000d;
+            }
+
+
+        }
+        return yearrundistance;
     }
 
     public void storeData(Context context){
