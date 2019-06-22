@@ -7,9 +7,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -22,10 +26,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -39,6 +48,8 @@ import java.util.Date;
 import eu.johannes.runninggag.fitness22.Fitness22;
 import eu.johannes.runninggag.fitness22.LocationPointsArray;
 
+import static eu.johannes.runninggag.RunResult.APPLICATION_GPX_XML;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private ListView runlist;
     private static final int PICKFILE_RESULT_CODE = 1;
     private RunningGagData runningGagData;
+    public static final String APPLICATION_JSON = "text/plain";
+
 
 
     @Override
@@ -146,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate menu resource file.
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -154,6 +168,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_item_import:
                 callImportAction();
+                break;
+            case R.id.menu_item_backup:
+                callBackupAction();
                 break;
         }
         return true;
@@ -165,6 +182,48 @@ public class MainActivity extends AppCompatActivity {
         intent.setType("file/*");
         startActivityForResult(intent, PICKFILE_RESULT_CODE);
     }
+
+    private void callBackupAction() {
+        String jsonFile = getBackupFileContent();
+        Intent gpxIntent = new Intent();
+        gpxIntent.setAction(Intent.ACTION_VIEW);
+        gpxIntent.setType(APPLICATION_JSON);
+        if (gpxIntent.resolveActivity(getPackageManager()) != null) {
+            Uri backupUri = getTemporaryUriForFile(jsonFile);
+            gpxIntent.setData(backupUri);
+            gpxIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Log.d(TAG, "Intent:  " + gpxIntent + " URI: " + backupUri);
+        }
+        startActivity(Intent.createChooser(gpxIntent, "Wohin mit dem Backup File?"));
+    }
+
+    private String getBackupFileContent() {
+        Gson gson = new GsonBuilder()
+                // this includes transient fields into the backup:
+                .excludeFieldsWithModifiers(Modifier.STATIC)
+                .create();
+        return gson.toJson(runningGagData);
+    }
+
+    @Nullable
+    private Uri getTemporaryUriForFile(String gpxFile) {
+        Uri backupURI = null;
+        try {
+            File temp = File.createTempFile("RunningGagBackup_", ".json", getCacheDir());
+            temp.deleteOnExit();
+            FileWriter writer = new FileWriter(temp);
+            writer.write(gpxFile);
+            writer.close();
+            backupURI = FileProvider.getUriForFile(this,
+                    getString(R.string.file_provider_authority),
+                    temp);
+
+        } catch (IOException ex) {
+            Log.e(TAG, ex.getMessage());
+        }
+        return backupURI;
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
