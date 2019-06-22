@@ -45,6 +45,14 @@ public class RunningGagData {
         }
         return runningGagData;
     }
+    public double caculateTotalRunDistance (){
+        double totalrundistance = 0;
+        for (OnlyOneRun run :runs){
+
+            totalrundistance = totalrundistance + run.getDistance();
+        }
+        return totalrundistance;
+    }
 
     public void storeData(Context context){
         SharedPreferences preferences = context.getSharedPreferences("application_data", Context.MODE_PRIVATE);

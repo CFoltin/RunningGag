@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/selfmadebackground2"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
     <include layout="@layout/toolbar"></include>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/startService"
@@ -23,6 +18,35 @@
         android:layout_marginTop="60dp"
         android:background="@drawable/roundedbutton2"
         android:text="Start" />
+
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:stretchColumns="0,1">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_margin="1dp"
+            android:layout_weight="1"
+            >
+        <TextView
+            android:id="@+id/gesamtgelaufentext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#a4f7ff00"
+            android:text="Insgesamt Gelaufen: " />
+
+        <TextView
+            android:id="@+id/geasmtgelaufen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#a4f7ff00"
+            android:text="TextView" />
+        </TableRow>
+    </TableLayout>
 
     <ListView
         android:id="@+id/runs"

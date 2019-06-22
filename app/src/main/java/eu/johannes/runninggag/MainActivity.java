@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -116,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+        DecimalFormat f = new DecimalFormat("#0.00");
+        TextView Gesamtgelaufen = findViewById(R.id.geasmtgelaufen);
+        Gesamtgelaufen.setText(f.format(runningGagData.caculateTotalRunDistance()) + "km");
     }
 
 
