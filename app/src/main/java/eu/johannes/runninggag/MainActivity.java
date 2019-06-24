@@ -58,6 +58,22 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICKFILE_RESULT_CODE = 1;
     private RunningGagData runningGagData;
     public static final String APPLICATION_JSON = "text/plain";
+/*    private Intent shareIntent;
+    private ShareActionProvider mShareActionProvider;
+    private void createShareEvent(){
+        String jsonFile = getBackupFileContent();
+        shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType(APPLICATION_JSON);
+        if (shareIntent.resolveActivity(getPackageManager()) != null) {
+            Uri jsonURI = getTemporaryUriForFile(jsonFile);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, jsonURI);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Log.d(TAG, "Intent:  " + shareIntent + " URI: " + jsonURI);
+        }
+    }
+
+    */
 
 
 
@@ -66,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "Vorher: ");
         setContentView(R.layout.activity_main);
+        //createShareEvent();
         Toolbar title = findViewById(R.id.toolbar);
         setSupportActionBar(title);
         runningGagData = RunningGagData.loadData(this);
@@ -160,6 +177,13 @@ public class MainActivity extends AppCompatActivity {
         // Inflate menu resource file.
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
 
+        // Locate MenuItem with ShareActionProvider
+        MenuItem item = menu.findItem(R.id.menu_item_backup);
+
+        // Fetch and store ShareActionProvider
+/*        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
+        mShareActionProvider.setShareIntent(shareIntent);*/
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -185,22 +209,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void callBackupAction() {
         String jsonFile = getBackupFileContent();
-        Intent gpxIntent = new Intent();
-        gpxIntent.setAction(Intent.ACTION_VIEW);
-        gpxIntent.setType(APPLICATION_JSON);
-        if (gpxIntent.resolveActivity(getPackageManager()) != null) {
+        Intent backupIntent = new Intent();
+        backupIntent.setAction(Intent.ACTION_SEND);
+        backupIntent.setType(APPLICATION_JSON);
+        if (backupIntent.resolveActivity(getPackageManager()) != null) {
             Uri backupUri = getTemporaryUriForFile(jsonFile);
-            gpxIntent.setData(backupUri);
-            gpxIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Log.d(TAG, "Intent:  " + gpxIntent + " URI: " + backupUri);
+            backupIntent.putExtra(Intent.EXTRA_STREAM, backupUri);
+            backupIntent.setData(backupUri);
+            backupIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Log.d(TAG, "Intent:  " + backupIntent + " URI: " + backupUri);
         }
-        startActivity(Intent.createChooser(gpxIntent, "Wohin mit dem Backup File?"));
+        startActivity(Intent.createChooser(backupIntent, "Wohin mit dem Backup File?"));
     }
 
+
     private String getBackupFileContent() {
+        // load all data points:
+        for(OnlyOneRun run: runningGagData.getRuns()) {
+            run.loadDataPoints(this);
+        }
         Gson gson = new GsonBuilder()
                 // this includes transient fields into the backup:
                 .excludeFieldsWithModifiers(Modifier.STATIC)
+                .setPrettyPrinting()
                 .create();
         return gson.toJson(runningGagData);
     }

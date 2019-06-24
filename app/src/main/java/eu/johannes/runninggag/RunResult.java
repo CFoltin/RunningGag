@@ -52,8 +52,8 @@ public class RunResult extends AppCompatActivity {
     private static final String TAG = RunResult.class.getName();
     public static final String APPLICATION_GPX_XML = "application/gpx+xml";
     MapView map = null;
-    private Intent shareIntent;
     private OnlyOneRun run;
+    private Intent shareIntent;
     private ShareActionProvider mShareActionProvider;
 
     @Override
