@@ -195,4 +195,10 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         }
 
     }
+
+    @Override
+    public void onBackPressed() {
+        // do nothing here to prevent back navigation.
+        // see https://stackoverflow.com/questions/4779954/disable-back-button-in-android
+    }
 }
