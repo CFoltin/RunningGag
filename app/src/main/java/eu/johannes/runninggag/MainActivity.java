@@ -6,7 +6,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
@@ -58,24 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICKFILE_RESULT_CODE = 1;
     private RunningGagData runningGagData;
     public static final String APPLICATION_JSON = "text/plain";
-/*    private Intent shareIntent;
-    private ShareActionProvider mShareActionProvider;
-    private void createShareEvent(){
-        String jsonFile = getBackupFileContent();
-        shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.setType(APPLICATION_JSON);
-        if (shareIntent.resolveActivity(getPackageManager()) != null) {
-            Uri jsonURI = getTemporaryUriForFile(jsonFile);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, jsonURI);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Log.d(TAG, "Intent:  " + shareIntent + " URI: " + jsonURI);
-        }
-    }
-
-    */
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Vorher: ");
         setContentView(R.layout.activity_main);
         //createShareEvent();
+        verifyBatteryOptimizationIsOff();
         Toolbar title = findViewById(R.id.toolbar);
         setSupportActionBar(title);
         runningGagData = RunningGagData.loadData(this);
@@ -356,4 +342,25 @@ public class MainActivity extends AppCompatActivity {
             );
         }
     }
+
+    public void verifyBatteryOptimizationIsOff(){
+        // see https://stackoverflow.com/a/54982071
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent();
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                startActivity(intent);
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        // do nothing here to prevent back navigation.
+        // see https://stackoverflow.com/questions/4779954/disable-back-button-in-android
+    }
+
 }
