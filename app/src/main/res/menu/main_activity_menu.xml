@@ -5,6 +5,10 @@
         android:title="Backup"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/menu_item_backup_disk"
+        android:title="Store"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/menu_item_import"
         android:title="Import"
         app:showAsAction="ifRoom" />

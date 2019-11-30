@@ -102,8 +102,7 @@ public class OnlyOneRun implements Parcelable {
     };
 
     public void loadDataPoints(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(getDataPointFileName(), Context.MODE_PRIVATE);
-        String data = preferences.getString("data", "[]");
+        String data = getDataPointsFromDiskAsString(context);
         Gson gson = new Gson();
         Type collectionType = new TypeToken<Collection<DataPoint>>() {
         }.getType();
@@ -112,6 +111,12 @@ public class OnlyOneRun implements Parcelable {
         if(dataPoints != null) {
             getDataPoints().addAll(dataPoints);
         }
+    }
+
+    @NonNull
+    public String getDataPointsFromDiskAsString(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(getDataPointFileName(), Context.MODE_PRIVATE);
+        return preferences.getString("data", "[]");
     }
 
 
@@ -132,7 +137,7 @@ public class OnlyOneRun implements Parcelable {
     }
 
     @NonNull
-    private String getDataPointFileName() {
+    public String getDataPointFileName() {
         return "point_data_" + "_" + getStartTime() + getStopTime();
     }
     public long caculateTotalRunTime (){

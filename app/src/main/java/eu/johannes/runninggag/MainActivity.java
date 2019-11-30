@@ -13,10 +13,8 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -27,17 +25,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Modifier;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -47,20 +47,49 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import eu.johannes.runninggag.fitness22.Fitness22;
 import eu.johannes.runninggag.fitness22.LocationPointsArray;
 
-import static eu.johannes.runninggag.RunResult.APPLICATION_GPX_XML;
-
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-    private ListView runlist;
-    private static final int PICKFILE_RESULT_CODE = 1;
-    private RunningGagData runningGagData;
+    public static final int WRITE_REQUEST_CODE = 17;
     public static final String APPLICATION_JSON = "text/plain";
+    public static final String APPLICATION_ZIP = "application/zip";
+    private static final String TAG = "MainActivity";
+    private static final int PICKFILE_RESULT_CODE = 1;
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    private ListView runlist;
+    private RunningGagData runningGagData;
+
+    /**
+     * Checks if the app has permission to write to device storage
+     * <p>
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Log.d(TAG, "Nachher: ");
-        runlist = (ListView) findViewById(R.id.runs);
+        runlist = findViewById(R.id.runs);
 
         setRunlistAdapter();
 
@@ -101,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        runlist.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+        runlist.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -112,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
                                 runToBeDeleted.removeDataPoints(MainActivity.this);
@@ -141,14 +170,12 @@ public class MainActivity extends AppCompatActivity {
         yeargelaufen.setText(f.format(runningGagData.caculateYearRunDistance()) + "km");
     }
 
-
-
     private void setRunlistAdapter() {
         ArrayList<String> values = new ArrayList<>();
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         DecimalFormat f = new DecimalFormat("#0.00");
         for (OnlyOneRun run : runningGagData.getRuns()) {
-            String theRun = "Lauf vom " + df.format(new Date(run.getStartTime())) + "  Gelaufen: " + f.format(run.getDistance()/1000d) + " km";
+            String theRun = "Lauf vom " + df.format(new Date(run.getStartTime())) + "  Gelaufen: " + f.format(run.getDistance() / 1000d) + " km";
             values.add(0, theRun);
         }
 
@@ -182,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.menu_item_backup:
                 callBackupAction();
                 break;
+            case R.id.menu_item_backup_disk:
+                callBackupToDiskAction();
+                break;
         }
         return true;
     }
@@ -194,12 +224,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void callBackupAction() {
-        String jsonFile = getBackupFileContent();
+        File jsonFile = null;
+        try {
+            jsonFile = getBackupFileContent();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Exception: " + e.getLocalizedMessage(), Toast.LENGTH_LONG);
+        }
         Intent backupIntent = new Intent();
         backupIntent.setAction(Intent.ACTION_SEND);
-        backupIntent.setType(APPLICATION_JSON);
+        backupIntent.setType(APPLICATION_ZIP);
         if (backupIntent.resolveActivity(getPackageManager()) != null) {
-            Uri backupUri = getTemporaryUriForFile(jsonFile);
+            Uri backupUri = getUriForFile(jsonFile);
             backupIntent.putExtra(Intent.EXTRA_STREAM, backupUri);
             backupIntent.setData(backupUri);
             backupIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -208,18 +244,43 @@ public class MainActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(backupIntent, "Wohin mit dem Backup File?"));
     }
 
+    private void callBackupToDiskAction() {
+        // when you create document, you need to add Intent.ACTION_CREATE_DOCUMENT
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
 
-    private String getBackupFileContent() {
-        // load all data points:
-        for(OnlyOneRun run: runningGagData.getRuns()) {
-            run.loadDataPoints(this);
+        // filter to only show openable items.
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        // Create a file with the requested Mime type
+        intent.setType(APPLICATION_ZIP);
+        intent.putExtra(Intent.EXTRA_TITLE, "RunningGagBackup_" + (new Date().toString()) + ".zip");
+
+        startActivityForResult(intent, WRITE_REQUEST_CODE);
+    }
+
+    private File getBackupFileContent() throws IOException {
+        File temp = File.createTempFile("RunningGagBackup_", ".json", getCacheDir());
+        temp.deleteOnExit();
+        FileOutputStream fos = new FileOutputStream(temp);
+        writeBackupToOutputStream(fos);
+        return temp;
+    }
+
+    private void writeBackupToOutputStream(OutputStream fos) throws IOException {
+        ZipOutputStream zipOut = new ZipOutputStream(fos);
+        for (OnlyOneRun run : runningGagData.getRuns()) {
+            ZipEntry zipEntry = new ZipEntry(run.getDataPointFileName()+".json");
+            zipOut.putNextEntry(zipEntry);
+            zipOut.write(run.getDataPointsFromDiskAsString(this).getBytes());
         }
         Gson gson = new GsonBuilder()
-                // this includes transient fields into the backup:
-                .excludeFieldsWithModifiers(Modifier.STATIC)
                 .setPrettyPrinting()
                 .create();
-        return gson.toJson(runningGagData);
+        ZipEntry zipEntry = new ZipEntry("application_data.json");
+        zipOut.putNextEntry(zipEntry);
+        zipOut.write(gson.toJson(runningGagData).getBytes());
+        zipOut.close();
+        fos.close();
     }
 
     @Nullable
@@ -231,9 +292,7 @@ public class MainActivity extends AppCompatActivity {
             FileWriter writer = new FileWriter(temp);
             writer.write(gpxFile);
             writer.close();
-            backupURI = FileProvider.getUriForFile(this,
-                    getString(R.string.file_provider_authority),
-                    temp);
+            backupURI = getUriForFile(temp);
 
         } catch (IOException ex) {
             Log.e(TAG, ex.getMessage());
@@ -241,6 +300,13 @@ public class MainActivity extends AppCompatActivity {
         return backupURI;
     }
 
+    private Uri getUriForFile(File temp) {
+        Uri backupURI;
+        backupURI = FileProvider.getUriForFile(this,
+                getString(R.string.file_provider_authority),
+                temp);
+        return backupURI;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -253,7 +319,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "Importing data...");
                         Gson gson = new Gson();
                         InputStream inputStream = getContentResolver().openInputStream(fileUri);
-                        Type collectionType = new TypeToken<Collection<Fitness22>>(){}.getType();
+                        Type collectionType = new TypeToken<Collection<Fitness22>>() {
+                        }.getType();
                         Collection<Fitness22> result = gson.fromJson(new InputStreamReader(inputStream), collectionType);
                         inputStream.close();
                         Log.d(TAG, "Importing data. Done");
@@ -311,41 +378,25 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 break;
-
+            case WRITE_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    if (data != null
+                            && data.getData() != null) {
+                        try {
+                            OutputStream outputStream = getContentResolver().openOutputStream(data.getData());
+                            writeBackupToOutputStream(outputStream);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    break;
+                }
         }
     }
 
-    // Storage Permissions
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-
-    /**
-     * Checks if the app has permission to write to device storage
-     * <p>
-     * If the app does not has permission then the user will be prompted to grant permissions
-     *
-     * @param activity
-     */
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-    }
-
-    public void verifyBatteryOptimizationIsOff(){
+    public void verifyBatteryOptimizationIsOff() {
         // see https://stackoverflow.com/a/54982071
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Intent intent = new Intent();
             String packageName = getPackageName();
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
