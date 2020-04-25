@@ -47,6 +47,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -268,11 +270,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void writeBackupToOutputStream(OutputStream fos) throws IOException {
         ZipOutputStream zipOut = new ZipOutputStream(fos);
+        Set<String> fileNames = new HashSet<>();
         for (OnlyOneRun run : runningGagData.getRuns()) {
-            ZipEntry zipEntry = new ZipEntry(run.getDataPointFileName()+".json");
-            zipOut.putNextEntry(zipEntry);
-            zipOut.write(run.getDataPointsFromDiskAsString(this).getBytes());
-            zipOut.closeEntry();
+            String fileName = run.getDataPointFileName() + ".json";
+            // to prevent doubled files.
+            if(fileNames.add(fileName)) {
+                ZipEntry zipEntry = new ZipEntry(fileName);
+                zipOut.putNextEntry(zipEntry);
+                zipOut.write(run.getDataPointsFromDiskAsString(this).getBytes());
+                zipOut.closeEntry();
+            }
         }
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
