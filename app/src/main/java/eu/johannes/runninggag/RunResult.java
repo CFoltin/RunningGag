@@ -77,63 +77,17 @@ public class RunResult extends AppCompatActivity {
         Toolbar title = findViewById(R.id.toolbar);
         setSupportActionBar(title);
 
-        map = (MapView) findViewById(R.id.mymap);
-        map.setTileSource(TileSourceFactory.MAPNIK);
-
         Bundle bundle = getIntent().getExtras();
         run = bundle.getParcelable("com.example.runs.run");
-
-
-        map.setBuiltInZoomControls(true);
-        map.setMultiTouchControls(true);
-
-
-        List<GeoPoint> geoPoints = new ArrayList<>();
-        // load points
         run.loadDataPoints(this);
-        ArrayList<Polyline> lines = new ArrayList<>();
-        int timeSegmentOfLastDataPoint = 0;
-        for(DataPoint dataPoint : run.getDataPoints()){
-            // determine time segment of this point:
-            Integer newDataPointTimeIndex = run.getTimeSegment(dataPoint);
-            if(newDataPointTimeIndex == null){
-                continue;
-            }
-            if(newDataPointTimeIndex != timeSegmentOfLastDataPoint && !geoPoints.isEmpty()){
-                Polyline line = new Polyline();
-                line.setPoints(geoPoints);
-                lines.add(line);
-                geoPoints.clear();
-            }
-            timeSegmentOfLastDataPoint = newDataPointTimeIndex;
-            //Log.d("RunResult", String.valueOf(dataPoint));
-            GeoPoint geo = new GeoPoint(dataPoint.getLatitude(), dataPoint.getLongitude());
-            geoPoints.add(geo);
-        }
-        if(!geoPoints.isEmpty()){
-            Polyline line = new Polyline();
-            line.setPoints(geoPoints);
-            lines.add(line);
-        }
-        IMapController mapController = map.getController();
-        mapController.setZoom(15);
-        if(!run.getDataPoints().isEmpty()) {
-            DataPoint firstPoint = run.getDataPoints().get(0);
-            GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
-            mapController.setCenter(startPoint);
-        }
-        for(Polyline line : lines) {
-            line.setOnClickListener(new Polyline.OnClickListener() {
-                @Override
-                public boolean onClick(Polyline polyline, MapView mapView, GeoPoint eventPos) {
-                    Toast.makeText(mapView.getContext(), "polyline with " + polyline.getPoints().size() + "pts was tapped", Toast.LENGTH_LONG).show();
-                    return false;
-                }
-            });
-            map.getOverlayManager().add(line);
-        }
+
+        displayMapWithPoints();
         createShareAction();
 
+        displayRunInformation();
+    }
+
+    public void displayRunInformation() {
         TextView minprokm = findViewById(R.id.MinproKM);
         double distance = run.getDistance();
         long time = run.caculateTotalRunTime();
@@ -212,6 +166,60 @@ public class RunResult extends AppCompatActivity {
         Points.setText("Punkte: " + punkte);
     }
 
+    public void displayMapWithPoints() {
+        map = (MapView) findViewById(R.id.mymap);
+        map.setTileSource(TileSourceFactory.MAPNIK);
+
+
+        map.setBuiltInZoomControls(true);
+        map.setMultiTouchControls(true);
+        map.getOverlayManager().clear();
+
+        List<GeoPoint> geoPoints = new ArrayList<>();
+        // load points
+        ArrayList<Polyline> lines = new ArrayList<>();
+        int timeSegmentOfLastDataPoint = 0;
+        for(DataPoint dataPoint : run.getDataPoints()){
+            // determine time segment of this point:
+            Integer newDataPointTimeIndex = run.getTimeSegment(dataPoint);
+            if(newDataPointTimeIndex == null){
+                continue;
+            }
+            if(newDataPointTimeIndex != timeSegmentOfLastDataPoint && !geoPoints.isEmpty()){
+                Polyline line = new Polyline();
+                line.setPoints(geoPoints);
+                lines.add(line);
+                geoPoints.clear();
+            }
+            timeSegmentOfLastDataPoint = newDataPointTimeIndex;
+            //Log.d("RunResult", String.valueOf(dataPoint));
+            GeoPoint geo = new GeoPoint(dataPoint.getLatitude(), dataPoint.getLongitude());
+            geoPoints.add(geo);
+        }
+        if(!geoPoints.isEmpty()){
+            Polyline line = new Polyline();
+            line.setPoints(geoPoints);
+            lines.add(line);
+        }
+        IMapController mapController = map.getController();
+        mapController.setZoom(15);
+        if(!run.getDataPoints().isEmpty()) {
+            DataPoint firstPoint = run.getDataPoints().get(0);
+            GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
+            mapController.setCenter(startPoint);
+        }
+        for(Polyline line : lines) {
+            line.setOnClickListener(new Polyline.OnClickListener() {
+                @Override
+                public boolean onClick(Polyline polyline, MapView mapView, GeoPoint eventPos) {
+                    Toast.makeText(mapView.getContext(), "polyline with " + polyline.getPoints().size() + "pts was tapped", Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            });
+            map.getOverlayManager().add(line);
+        }
+    }
+
     @NonNull
     private Location getLocation(DataPoint dataPoint) {
         Location lLast;
@@ -263,8 +271,17 @@ public class RunResult extends AppCompatActivity {
             case R.id.menu_item_image:
                 callPngAction();
                 break;
+            case R.id.menu_item_flatten:
+                callFlattenAction();
+                break;
         }
         return true;
+    }
+
+    private void callFlattenAction() {
+        run.flattenDataPoints();
+        displayMapWithPoints();
+        displayRunInformation();
     }
 
     private void createShareAction() {

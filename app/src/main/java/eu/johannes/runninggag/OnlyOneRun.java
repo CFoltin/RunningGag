@@ -113,6 +113,15 @@ public class OnlyOneRun implements Parcelable {
         }
     }
 
+    public void flattenDataPoints(){
+        KalmanLatLon kalmanLatLon = new KalmanLatLon(6);
+        for (DataPoint dataPoint: dataPoints){
+            kalmanLatLon.Process(dataPoint.getLatitude(), dataPoint.getLongitude(), (float) dataPoint.getAccuracy(), dataPoint.getTime());
+            dataPoint.setLatitude(kalmanLatLon.get_lat());
+            dataPoint.setLongitude(kalmanLatLon.get_lng());
+        }
+    }
+
     @NonNull
     public String getDataPointsFromDiskAsString(Context context) {
         SharedPreferences preferences = context.getSharedPreferences(getDataPointFileName(), Context.MODE_PRIVATE);

@@ -272,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
             ZipEntry zipEntry = new ZipEntry(run.getDataPointFileName()+".json");
             zipOut.putNextEntry(zipEntry);
             zipOut.write(run.getDataPointsFromDiskAsString(this).getBytes());
+            zipOut.closeEntry();
         }
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
@@ -279,8 +280,10 @@ public class MainActivity extends AppCompatActivity {
         ZipEntry zipEntry = new ZipEntry("application_data.json");
         zipOut.putNextEntry(zipEntry);
         zipOut.write(gson.toJson(runningGagData).getBytes());
+        zipOut.closeEntry();
+        zipOut.flush();
         zipOut.close();
-        fos.close();
+        // not necessary to close fos.
     }
 
     @Nullable

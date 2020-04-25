@@ -13,6 +13,10 @@
         android:id="@+id/menu_item_image"
         android:title="Map image"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_item_flatten"
+        android:title="Flatten"
+        app:showAsAction="ifRoom" />
 
 
 </menu>
