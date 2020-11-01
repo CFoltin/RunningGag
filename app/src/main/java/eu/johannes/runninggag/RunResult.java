@@ -99,7 +99,7 @@ public class RunResult extends AppCompatActivity {
             minprokm.setText("Durchschnittszeit: " + Runnow.getDurationString((long)secprokm));
         }
         else {
-            minprokm.setText("Du faule Sau");
+            minprokm.setText("Noch kein Durchschnitt bekannt.");
         }
         DecimalFormat f = new DecimalFormat("#0.00");
         if (run.getPoints() > 0 && !run.getTime().isEmpty()) {

@@ -65,9 +65,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int PICKFILE_RESULT_CODE = 1;
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    // Storage Permissions
+    private static final int REQUEST_LOCATION = 2;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+    private static String[] PERMISSIONS_LOCATION = {
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION
     };
     private ListView runlist;
     private RunningGagData runningGagData;
@@ -82,13 +87,33 @@ public class MainActivity extends AppCompatActivity {
     public static void verifyStoragePermissions(Activity activity) {
         // Check if we have write permission
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
         if (permission != PackageManager.PERMISSION_GRANTED) {
             // We don't have permission so prompt the user
             ActivityCompat.requestPermissions(
                     activity,
                     PERMISSIONS_STORAGE,
                     REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
+
+    /**
+     * Checks if the app has permission to access the GPS in background
+     * <p>
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyLocationPermissions(Activity activity) {
+        // Check if we have location permission
+        int permission2 = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permission3 = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        if (permission2 != PackageManager.PERMISSION_GRANTED || permission3 != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_LOCATION,
+                    REQUEST_LOCATION
             );
         }
     }
@@ -100,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //createShareEvent();
         verifyBatteryOptimizationIsOff();
+        verifyLocationPermissions(this);
         Toolbar title = findViewById(R.id.toolbar);
         setSupportActionBar(title);
         runningGagData = RunningGagData.loadData(this);
@@ -177,7 +203,10 @@ public class MainActivity extends AppCompatActivity {
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         DecimalFormat f = new DecimalFormat("#0.00");
         for (OnlyOneRun run : runningGagData.getRuns()) {
-            String theRun = "Lauf vom " + df.format(new Date(run.getStartTime())) + "  Gelaufen: " + f.format(run.getDistance() / 1000d) + " km";
+            String theRun = String.format("%s : %s km : %s",
+                    df.format(new Date(run.getStartTime())),
+                    f.format(run.getDistance() / 1000d),
+                    Runnow.getDurationString(run.caculateTotalRunTime() / 1000l));
             values.add(0, theRun);
         }
 
@@ -274,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
         for (OnlyOneRun run : runningGagData.getRuns()) {
             String fileName = run.getDataPointFileName() + ".json";
             // to prevent doubled files.
-            if(fileNames.add(fileName)) {
+            if (fileNames.add(fileName)) {
                 ZipEntry zipEntry = new ZipEntry(fileName);
                 zipOut.putNextEntry(zipEntry);
                 zipOut.write(run.getDataPointsFromDiskAsString(this).getBytes());
