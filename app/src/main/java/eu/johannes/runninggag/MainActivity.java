@@ -2,6 +2,7 @@ package eu.johannes.runninggag;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,10 +21,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,10 +47,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import de.codecrafters.tableview.SortableTableView;
+import de.codecrafters.tableview.TableDataAdapter;
+import de.codecrafters.tableview.TableHeaderAdapter;
+import de.codecrafters.tableview.listeners.TableDataClickListener;
+import de.codecrafters.tableview.listeners.TableDataLongClickListener;
+import de.codecrafters.tableview.model.TableColumnWeightModel;
+import de.codecrafters.tableview.toolkit.SimpleTableHeaderAdapter;
 import eu.johannes.runninggag.fitness22.Fitness22;
 import eu.johannes.runninggag.fitness22.LocationPointsArray;
 
@@ -62,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String APPLICATION_JSON = "text/plain";
     public static final String APPLICATION_ZIP = "application/zip";
     private static final String TAG = "MainActivity";
+    private static final String[] TABLE_HEADERS = {"Datum", "Entfernung", "Zeit"};
     private static final int PICKFILE_RESULT_CODE = 1;
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -74,8 +82,8 @@ public class MainActivity extends AppCompatActivity {
     private static String[] PERMISSIONS_LOCATION = {
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION
     };
-    private ListView runlist;
     private RunningGagData runningGagData;
+    private SortableTableView<OnlyOneRun> tableView;
 
     /**
      * Checks if the app has permission to write to device storage
@@ -139,33 +147,52 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         Log.d(TAG, "Nachher: ");
-        runlist = findViewById(R.id.runs);
+
+        tableView = (SortableTableView<OnlyOneRun>) findViewById(R.id.runsTable);
+        tableView.setColumnCount(3);
+
+        TableColumnWeightModel columnModel = new TableColumnWeightModel(3);
+        columnModel.setColumnWeight(0, 1);
+        tableView.setColumnModel(columnModel);
 
         setRunlistAdapter();
-
-        // ListView Item Click Listener
-        runlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
+        tableView.setColumnComparator(0, new Comparator<OnlyOneRun>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                // ListView Clicked item value
-                String itemValue = (String) runlist.getItemAtPosition(position);
+            public int compare(OnlyOneRun o1, OnlyOneRun o2) {
+                return -Long.compare(o1.getStartTime(), o2.getStartTime());
+            }
+        });
+        tableView.setColumnComparator(1, new Comparator<OnlyOneRun>() {
+            @Override
+            public int compare(OnlyOneRun o1, OnlyOneRun o2) {
+                return -Double.compare(o1.getDistance(), o2.getDistance());
+            }
+        });
+        tableView.setColumnComparator(2, new Comparator<OnlyOneRun>() {
+            @Override
+            public int compare(OnlyOneRun o1, OnlyOneRun o2) {
+                return -Long.compare(o1.caculateTotalRunTime(), o2.caculateTotalRunTime());
+            }
+        });
 
-                OnlyOneRun run = runningGagData.getRuns().get(runningGagData.getRuns().size() - position - 1);
+        SimpleTableHeaderAdapter simpleTableHeaderAdapter = new SimpleTableHeaderAdapter(this, TABLE_HEADERS);
+        simpleTableHeaderAdapter.setTextColor(getResources().getColor(R.color.tableForeground));
+        simpleTableHeaderAdapter.setPaddingLeft(0);
+        tableView.setHeaderAdapter(simpleTableHeaderAdapter);
+        tableView.setHeaderBackgroundColor(getResources().getColor(R.color.transparent));
+        tableView.addDataClickListener(new TableDataClickListener<OnlyOneRun>() {
+            @Override
+            public void onDataClicked(int rowIndex, OnlyOneRun run) {
+                // ListView Clicked item value
                 Intent intent = new Intent(MainActivity.this, RunResult.class);
                 intent.putExtra("com.example.runs.run", run);
                 startActivity(intent);
             }
         });
-        runlist.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
+        tableView.addDataLongClickListener(new TableDataLongClickListener<OnlyOneRun>() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onDataLongClicked(int rowIndex, final OnlyOneRun runToBeDeleted) {
                 // ListView Clicked item value
-                String itemValue = (String) runlist.getItemAtPosition(position);
-                final int runIndex = runningGagData.getRuns().size() - position - 1;
-                final OnlyOneRun runToBeDeleted = runningGagData.getRuns().get(runIndex);
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -173,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                             case DialogInterface.BUTTON_POSITIVE:
                                 //Yes button clicked
                                 runToBeDeleted.removeDataPoints(MainActivity.this);
-                                runningGagData.getRuns().remove(runIndex);
+                                runningGagData.getRuns().remove(runToBeDeleted);
                                 runningGagData.storeData(MainActivity.this);
                                 setRunlistAdapter();
                                 break;
@@ -191,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
         DecimalFormat f = new DecimalFormat("#0.00");
         TextView gesamtgelaufen = findViewById(R.id.gesamtgelaufen);
         gesamtgelaufen.setText(f.format(runningGagData.caculateTotalRunDistance()) + "km");
@@ -199,21 +227,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setRunlistAdapter() {
-        ArrayList<String> values = new ArrayList<>();
-        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        DecimalFormat f = new DecimalFormat("#0.00");
-        for (OnlyOneRun run : runningGagData.getRuns()) {
-            String theRun = String.format("%s : %s km : %s",
-                    df.format(new Date(run.getStartTime())),
-                    f.format(run.getDistance() / 1000d),
-                    Runnow.getDurationString(run.caculateTotalRunTime() / 1000l));
-            values.add(0, theRun);
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                R.layout.list_yellow_text, R.id.list_content, values);
-
-        runlist.setAdapter(adapter);
+        ArrayList<OnlyOneRun> runs = new ArrayList<>();
+        runs.addAll(runningGagData.getRuns());
+        Collections.reverse(runs);
+        tableView.setDataAdapter(new RunTableDataAdapter(this, runs));
     }
 
     @Override
@@ -451,6 +468,36 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         // do nothing here to prevent back navigation.
         // see https://stackoverflow.com/questions/4779954/disable-back-button-in-android
+    }
+
+    public class RunTableDataAdapter extends TableDataAdapter<OnlyOneRun> {
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        DecimalFormat f = new DecimalFormat("#0.00");
+
+        public RunTableDataAdapter(Context context, List<OnlyOneRun> data) {
+            super(context, data);
+        }
+
+        @Override
+        public View getCellView(int rowIndex, int columnIndex, ViewGroup parentView) {
+            OnlyOneRun run = getRowData(rowIndex);
+            TextView textView = (TextView) View.inflate(MainActivity.this, R.layout.list_yellow_textview, null);
+            String content = "Hae??";
+            switch (columnIndex) {
+                case 0:
+                    content = df.format(new Date(run.getStartTime()));
+                    break;
+                case 1:
+                    content = f.format(run.getDistance() / 1000d) + " km";
+                    break;
+                case 2:
+                    content = Runnow.getDurationString(run.caculateTotalRunTime() / 1000l);
+                    break;
+            }
+            textView.setText(content);
+            return textView;
+        }
+
     }
 
 }

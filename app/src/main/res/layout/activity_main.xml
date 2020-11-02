@@ -68,13 +68,20 @@
             android:textColor="#a4f7ff00" />
         </TableRow>
     </TableLayout>
-
+<!--
     <ListView
         android:id="@+id/runs"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp">
-
     </ListView>
+-->
+
+    <de.codecrafters.tableview.SortableTableView
+        xmlns:table="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/runsTable"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"/>
 
 </LinearLayout>
