@@ -164,6 +164,9 @@ public class RunResult extends AppCompatActivity {
         TextView Points = findViewById(R.id.points);
         int punkte = run.getPoints();
         Points.setText("Punkte: " + punkte);
+        TextView dateOfRun = findViewById(R.id.Date);
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        dateOfRun.setText(df.format(new Date(run.getStartTime())));
     }
 
     public void displayMapWithPoints() {

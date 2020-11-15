@@ -175,4 +175,12 @@ public class OnlyOneRun implements Parcelable {
         }
         return newDataPointTimeIndex;
     }
+
+    /**
+     *
+     * @return the amount of kilometers casted to int.
+     */
+    public int getCategory(){
+        return (int) (getDistance()/1000d);
+    }
 }

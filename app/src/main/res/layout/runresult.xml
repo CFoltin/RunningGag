@@ -22,6 +22,24 @@
         android:layout_gravity="center"
         android:layout_span="2"/>
     </TableRow>
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_margin="1dp"
+        android:layout_weight="1" >
+
+
+        <TextView
+            android:id="@+id/Date"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="1dp"
+            android:layout_column="0"
+            android:gravity="center"
+            android:text="TextView"
+            android:layout_gravity="center"
+            android:layout_span="2"/>
+    </TableRow>
 
     <TableRow
         android:layout_width="fill_parent"

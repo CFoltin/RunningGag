@@ -18,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String APPLICATION_JSON = "text/plain";
     public static final String APPLICATION_ZIP = "application/zip";
     private static final String TAG = "MainActivity";
-    private static final String[] TABLE_HEADERS = {"Datum", "Entfernung", "Zeit"};
+    private static final String[] TABLE_HEADERS = {"Datum", "Dist.", "Zeit", "km"};
     private static final int PICKFILE_RESULT_CODE = 1;
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -149,10 +150,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Nachher: ");
 
         tableView = (SortableTableView<OnlyOneRun>) findViewById(R.id.runsTable);
-        tableView.setColumnCount(3);
+        tableView.setColumnCount(TABLE_HEADERS.length);
 
-        TableColumnWeightModel columnModel = new TableColumnWeightModel(3);
-        columnModel.setColumnWeight(0, 1);
+        TableColumnWeightModel columnModel = new TableColumnWeightModel(TABLE_HEADERS.length);
+        columnModel.setColumnWeight(0, 2);
+        columnModel.setColumnWeight(2, 2);
         tableView.setColumnModel(columnModel);
 
         setRunlistAdapter();
@@ -171,6 +173,15 @@ public class MainActivity extends AppCompatActivity {
         tableView.setColumnComparator(2, new Comparator<OnlyOneRun>() {
             @Override
             public int compare(OnlyOneRun o1, OnlyOneRun o2) {
+                return -Long.compare(o1.caculateTotalRunTime(), o2.caculateTotalRunTime());
+            }
+        });
+        tableView.setColumnComparator(3, new Comparator<OnlyOneRun>() {
+            @Override
+            public int compare(OnlyOneRun o1, OnlyOneRun o2) {
+                if(o1.getCategory() != o2.getCategory()){
+                    return -Integer.compare(o1.getCategory(), o2.getCategory());
+                }
                 return -Long.compare(o1.caculateTotalRunTime(), o2.caculateTotalRunTime());
             }
         });
@@ -482,22 +493,30 @@ public class MainActivity extends AppCompatActivity {
         public View getCellView(int rowIndex, int columnIndex, ViewGroup parentView) {
             OnlyOneRun run = getRowData(rowIndex);
             TextView textView = (TextView) View.inflate(MainActivity.this, R.layout.list_yellow_textview, null);
+            textView.setPadding(textView.getPaddingLeft(), 10, textView.getPaddingRight(), 10);
+            if(runningGagData.getRuns().indexOf(run)==runningGagData.getRuns().size()-1){
+                textView.setTextColor(getResources().getColor(R.color.colorGreen));
+            }
             String content = "Hae??";
             switch (columnIndex) {
                 case 0:
                     content = df.format(new Date(run.getStartTime()));
                     break;
                 case 1:
-                    content = f.format(run.getDistance() / 1000d) + " km";
+                    textView.setGravity(Gravity.RIGHT);
+                    content = f.format(run.getDistance() / 1000d) + " km ";
                     break;
                 case 2:
                     content = Runnow.getDurationString(run.caculateTotalRunTime() / 1000l);
+                    break;
+                case 3:
+                    textView.setGravity(Gravity.RIGHT);
+                    content = ""+ run.getCategory() + " km";
                     break;
             }
             textView.setText(content);
             return textView;
         }
-
     }
 
 }
