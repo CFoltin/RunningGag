@@ -55,7 +55,6 @@ import java.util.zip.ZipOutputStream;
 
 import de.codecrafters.tableview.SortableTableView;
 import de.codecrafters.tableview.TableDataAdapter;
-import de.codecrafters.tableview.TableHeaderAdapter;
 import de.codecrafters.tableview.listeners.TableDataClickListener;
 import de.codecrafters.tableview.listeners.TableDataLongClickListener;
 import de.codecrafters.tableview.model.TableColumnWeightModel;
@@ -65,6 +64,12 @@ import eu.johannes.runninggag.fitness22.LocationPointsArray;
 
 
 public class MainActivity extends AppCompatActivity {
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     public static final int WRITE_REQUEST_CODE = 17;
     public static final String APPLICATION_JSON = "text/plain";
@@ -72,17 +77,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String[] TABLE_HEADERS = {"Datum", "Dist.", "Zeit", "km"};
     private static final int PICKFILE_RESULT_CODE = 1;
-    // Storage Permissions
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    // Storage Permissions
-    private static final int REQUEST_LOCATION = 2;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-    private static String[] PERMISSIONS_LOCATION = {
-            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION
-    };
     private RunningGagData runningGagData;
     private SortableTableView<OnlyOneRun> tableView;
 
@@ -106,35 +100,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Checks if the app has permission to access the GPS in background
-     * <p>
-     * If the app does not has permission then the user will be prompted to grant permissions
-     *
-     * @param activity
-     */
-    public static void verifyLocationPermissions(Activity activity) {
-        // Check if we have location permission
-        int permission2 = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
-        int permission3 = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-        if (permission2 != PackageManager.PERMISSION_GRANTED || permission3 != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_LOCATION,
-                    REQUEST_LOCATION
-            );
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "Vorher: ");
         setContentView(R.layout.activity_main);
         //createShareEvent();
-        verifyBatteryOptimizationIsOff();
-        verifyLocationPermissions(this);
         Toolbar title = findViewById(R.id.toolbar);
         setSupportActionBar(title);
         runningGagData = RunningGagData.loadData(this);
@@ -179,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         tableView.setColumnComparator(3, new Comparator<OnlyOneRun>() {
             @Override
             public int compare(OnlyOneRun o1, OnlyOneRun o2) {
-                if(o1.getCategory() != o2.getCategory()){
+                if (o1.getCategory() != o2.getCategory()) {
                     return -Integer.compare(o1.getCategory(), o2.getCategory());
                 }
                 return -Long.compare(o1.caculateTotalRunTime(), o2.caculateTotalRunTime());
@@ -461,20 +432,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void verifyBatteryOptimizationIsOff() {
-        // see https://stackoverflow.com/a/54982071
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Intent intent = new Intent();
-            String packageName = getPackageName();
-            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                intent.setData(Uri.parse("package:" + packageName));
-                startActivity(intent);
-            }
-        }
-    }
-
     @Override
     public void onBackPressed() {
         // do nothing here to prevent back navigation.
@@ -494,7 +451,7 @@ public class MainActivity extends AppCompatActivity {
             OnlyOneRun run = getRowData(rowIndex);
             TextView textView = (TextView) View.inflate(MainActivity.this, R.layout.list_yellow_textview, null);
             textView.setPadding(textView.getPaddingLeft(), 10, textView.getPaddingRight(), 10);
-            if(runningGagData.getRuns().indexOf(run)==runningGagData.getRuns().size()-1){
+            if (runningGagData.getRuns().indexOf(run) == runningGagData.getRuns().size() - 1) {
                 textView.setTextColor(getResources().getColor(R.color.colorGreen));
             }
             String content = "Hae??";
@@ -511,7 +468,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 3:
                     textView.setGravity(Gravity.RIGHT);
-                    content = ""+ run.getCategory() + " km";
+                    content = "" + run.getCategory() + " km";
                     break;
             }
             textView.setText(content);

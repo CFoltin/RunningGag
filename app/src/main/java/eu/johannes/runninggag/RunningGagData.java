@@ -20,6 +20,16 @@ public class RunningGagData {
 
     private ArrayList <OnlyOneRun> runs = new ArrayList<>();
 
+    public boolean isDontAskForLocation() {
+        return dontAskForLocation;
+    }
+
+    public void setDontAskForLocation(boolean dontAskForLocation) {
+        this.dontAskForLocation = dontAskForLocation;
+    }
+
+    private boolean dontAskForLocation = false;
+
     public static RunningGagData loadData(Context context){
         SharedPreferences preferences = context.getSharedPreferences("application_data", Context.MODE_PRIVATE);
         String data = preferences.getString("data", "{}");
