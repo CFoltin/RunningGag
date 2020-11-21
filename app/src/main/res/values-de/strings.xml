@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">RunningGag</string>
+    <string name="disclaimer">Um Deine Läufe auf einer Karte zu sehen, braucht RunningGag das Recht, Deine Position immer verfolgen zu können.
+        RunningGag wird diese Positionen, die es während der Läufe im Hintergrund sammelt, nutzen um die Läufe auf einer Karte anzuzeigen.
+        Ferner bekommst Du eine statistische Auswertung der Durchschnittszeiten pro Kilometer und Deiner Gesamtdistanz.</string>
+    <string name="turn_on">Anschalten</string>
+    <string name="no_thanks">Nein Danke</string>
+    <string name="dont_ask_again">Nicht mehr fragen#</string>
+    <string name="use_your_location">Positionsabfrage</string>
+    <string name="date">Datum</string>
+    <string name="distance">Distanz</string>
+    <string name="time">Zeit</string>
+    <string name="km">km</string>
+    <string name="sure_to_delete">Bist Du sicher, den Lauf vom %s zu löschen?</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="backup_file_location">Wohin mit dem Backup File?</string>
+    <string name="runnow_time">Laufzeit: %s</string>
+    <string name="runnow_stop">Stop</string>
+    <string name="runnow_sure_to_end">Bist Du sicher, dass der Lauf zu Ende ist?</string>
+    <string name="runnow_start">Start</string>
+    <string name="pause">PAUSE</string>
+    <string name="resume">Fortfahren</string>
+    <string name="runnow_speed">Geschwindigkeit: %s</string>
+    <string name="runnow_distance">Entfernung: %skm</string>
+    <string name="runnow_accuracy">Genauigkeit: %f</string>
+    <string name="runnow_points">Punkte: %d</string>
+    <string name="runresult_mean_time">Durchschnittszeit: %s</string>
+    <string name="runresult_no_result">Noch kein Durchschnitt bekannt.</string>
+    <string name="runresult_lap_results">Rundenzeiten:</string>
+    <string name="runresult_lap_time_contents">%sDist.: %skm; Runde: %s; Gesamt: %s%s\\n</string>
+    <string name="runresult_polyline_tapped">Polylinie mit %d Punkten wurde berührt.</string>
+    <string name="runresult_file_location">Wohin mit dem GPX File?</string>
+    <string name="runresult_share_image">Teile Bild mit</string>
+</resources>

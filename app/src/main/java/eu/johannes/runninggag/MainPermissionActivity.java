@@ -64,18 +64,12 @@ public class MainPermissionActivity extends AppCompatActivity {
                     }
                 };
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainPermissionActivity.this);
-                String message = "To see maps for your runs, allow RunningGag " +
-                        "to use your location all of the time.\n\n" +
-                        "RunningGag will use location in the background to show the runs" +
-                        " on a map.\n" +
-                        "Moreover you get statistics about time per kilometer and " +
-                        "total running distance.";
-                builder.setTitle("Use your location")
-                        .setMessage(message)
+                builder.setTitle(R.string.use_your_location)
+                        .setMessage(R.string.disclaimer)
                         .setIcon(R.drawable.runmapsmall)
-                        .setPositiveButton("Turn On", approvalDialogListener)
-                        .setNegativeButton("No thanks", approvalDialogListener)
-                        .setNeutralButton("Don't ask again", approvalDialogListener)
+                        .setPositiveButton(R.string.turn_on, approvalDialogListener)
+                        .setNegativeButton(R.string.no_thanks, approvalDialogListener)
+                        .setNeutralButton(R.string.dont_ask_again, approvalDialogListener)
                         .show();
 
             }

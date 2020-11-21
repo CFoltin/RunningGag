@@ -53,7 +53,8 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
             public void run() {
                 time = System.currentTimeMillis();
                 TextView runtime = findViewById(R.id.time);
-                runtime.setText("Time: " + getDurationString(myService.caculateTotalRunTime()/1000));
+                String durationString = getDurationString(myService.caculateTotalRunTime() / 1000);
+                runtime.setText(getString(R.string.runnow_time, durationString));
 
                 handler.postDelayed(this, SWITCH_UPDATE_INTERVAL);
             }
@@ -88,7 +89,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                                 runningGagData.getRuns().add(myRun);
                                 runningGagData.storeData(Runnow.this);
 
-                                Toast.makeText(Runnow.this, "Stop", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Runnow.this, getString(R.string.runnow_stop), Toast.LENGTH_SHORT).show();
                                 myService.unregisterClient();
                                 unbindService(mConnection);
                                 stopService(serviceIntent);
@@ -102,8 +103,9 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                     }
                 };
                 AlertDialog.Builder builder = new AlertDialog.Builder(Runnow.this);
-                builder.setMessage("Are you sure to end the run?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
+                builder.setMessage(R.string.runnow_sure_to_end)
+                        .setPositiveButton(R.string.yes, dialogClickListener)
+                        .setNegativeButton(R.string.no, dialogClickListener).show();
 
             }
         });
@@ -111,14 +113,12 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
             pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (pause.getText().equals("PAUSE")){
-
-                    pause.setText("Resume");
+                if (pause.getText().equals(getText(R.string.pause))){
+                    pause.setText(getText(R.string.resume));
                     myService.setPause();
                 }
-
                 else {
-                    pause.setText("PAUSE");
+                    pause.setText(getString(R.string.pause));
                     myService.setResume();
                 }
             }
@@ -131,7 +131,7 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            Toast.makeText(Runnow.this, "Start", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Runnow.this, getString(R.string.runnow_start), Toast.LENGTH_SHORT).show();
             // We've binded to LocalService, cast the IBinder and get LocalService instance
             MyService.LocalBinder binder = (MyService.LocalBinder) service;
             myService = binder.getServiceInstance(); //Get instance of your service!
@@ -154,14 +154,14 @@ public class Runnow extends AppCompatActivity implements MyService.Callback {
                           public void run() {
                               DecimalFormat f = new DecimalFormat("#0.00");
                               TextView data = findViewById(R.id.GpsDaten);
-                              data.setText("Speed: " + f.format(speed));
+                              data.setText(getString(R.string.runnow_speed, f.format(speed)));
                               TextView distancelol = findViewById(R.id.distance);
-                              distancelol.setText("Distance: " + f.format(distance/1000d) + "km");
+                              distancelol.setText(getString(R.string.runnow_distance, f.format(distance / 1000d)));
                               loldistance = distance;
                               TextView accuracy1 = findViewById(R.id.accuracy);
-                              accuracy1.setText("Accuracy: " + accuracy);
+                              accuracy1.setText(getString(R.string.runnow_accuracy, accuracy));
                               TextView points1 = findViewById(R.id.points);
-                              points1.setText("Points: " + points);
+                              points1.setText(getString(R.string.runnow_points, points));
                               lolpoints = points;
                               loldatapoints = dataPoints;
                           }

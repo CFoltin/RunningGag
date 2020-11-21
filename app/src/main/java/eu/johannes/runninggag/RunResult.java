@@ -92,10 +92,10 @@ public class RunResult extends AppCompatActivity {
         time = time / 1000l;
         if (distance != 0 && time != 0) {
             double secprokm = ((double)time) / distance;
-            minprokm.setText("Durchschnittszeit: " + Runnow.getDurationString((long)secprokm));
+            minprokm.setText(getString(R.string.runresult_mean_time, Runnow.getDurationString((long) secprokm)));
         }
         else {
-            minprokm.setText("Noch kein Durchschnitt bekannt.");
+            minprokm.setText(getString(R.string.runresult_no_result));
         }
         DecimalFormat f = new DecimalFormat("#0.00");
         if (run.getPoints() > 0 && !run.getTime().isEmpty()) {
@@ -110,7 +110,7 @@ public class RunResult extends AppCompatActivity {
             long accumulatedTime = 0;
             long accumulatedRoundTime = 0;
             boolean pauseOccurredInThisRound = false;
-            String ausgabe = "Rundenzeiten:\n";
+            String ausgabe = getString(R.string.runresult_lap_results)+"\n";
             for (DataPoint dataPoint : run.getDataPoints()) {
                 // determine segment, where this point is located in:
                 Integer newDataPointTimeIndex = run.getTimeSegment(dataPoint);
@@ -138,10 +138,12 @@ public class RunResult extends AppCompatActivity {
                 if (distanceSinceLastKilometer > 1000 || dataPoint == lastDataPoint) {
                     long roundtime = (long) (accumulatedRoundTime/distanceSinceLastKilometer);
                     long totalRoundtime = (long) (accumulatedTime / totalDistance);
-                    ausgabe = ausgabe + "Dist.: " + f.format(totalDistance/1000d) + "km; "
-                            + "Runde: " + Runnow.getDurationString(roundtime)
-                            + "; "
-                            + "Gesamt: " + Runnow.getDurationString(totalRoundtime) + ((pauseOccurredInThisRound)?" P":"") + "\n";
+                    ausgabe = getString(R.string.runresult_lap_time_contents,
+                            ausgabe,
+                            f.format(totalDistance / 1000d),
+                            Runnow.getDurationString(roundtime),
+                            Runnow.getDurationString(totalRoundtime),
+                            (pauseOccurredInThisRound) ? " P" : "");
                     distanceSinceLastKilometer = totalDistance % 1000;
                     // reset the round time.
                     accumulatedRoundTime = 0;
@@ -154,12 +156,12 @@ public class RunResult extends AppCompatActivity {
             roundtimefinal.setText(ausgabe);
         }
         TextView Distance = findViewById(R.id.Distance);
-        Distance.setText("Distanz: "+ f.format(distance) + "km");
+        Distance.setText(getString(R.string.runnow_distance, f.format(distance)));
         TextView Laufzeit = findViewById(R.id.time);
-        Laufzeit.setText("Zeit: " + Runnow.getDurationString(time));
+        Laufzeit.setText(getString(R.string.runnow_time, Runnow.getDurationString(time)));
         TextView Points = findViewById(R.id.points);
         int punkte = run.getPoints();
-        Points.setText("Punkte: " + punkte);
+        Points.setText(getString(R.string.runnow_points, punkte));
         TextView dateOfRun = findViewById(R.id.Date);
         DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         dateOfRun.setText(df.format(new Date(run.getStartTime())));
@@ -211,7 +213,7 @@ public class RunResult extends AppCompatActivity {
             line.setOnClickListener(new Polyline.OnClickListener() {
                 @Override
                 public boolean onClick(Polyline polyline, MapView mapView, GeoPoint eventPos) {
-                    Toast.makeText(mapView.getContext(), "polyline with " + polyline.getPoints().size() + "pts was tapped", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mapView.getContext(), getString(R.string.runresult_polyline_tapped, polyline.getPoints().size()), Toast.LENGTH_LONG).show();
                     return false;
                 }
             });
@@ -310,7 +312,7 @@ public class RunResult extends AppCompatActivity {
 //            shareIntent.putExtra(Intent.EXTRA_STREAM, gpxURI);
             Log.d(TAG, "Intent:  " + gpxIntent + " URI: " + gpxURI);
         }
-        startActivity(Intent.createChooser(gpxIntent, "Wohin mit dem GPX File?"));
+        startActivity(Intent.createChooser(gpxIntent, getString(R.string.runresult_file_location)));
     }
 
     private void callPngAction(){
@@ -327,7 +329,7 @@ public class RunResult extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
             intent.setType("image/png");
-            startActivity(Intent.createChooser(intent, "Share image via"));
+            startActivity(Intent.createChooser(intent, getString(R.string.runresult_share_image)));
         } catch (Exception e) {
             e.printStackTrace();
         }

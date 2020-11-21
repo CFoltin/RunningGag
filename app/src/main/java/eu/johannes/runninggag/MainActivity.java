@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String APPLICATION_JSON = "text/plain";
     public static final String APPLICATION_ZIP = "application/zip";
     private static final String TAG = "MainActivity";
-    private static final String[] TABLE_HEADERS = {"Datum", "Dist.", "Zeit", "km"};
+    private static final int[] TABLE_HEADERS = {R.string.date, R.string.distance, R.string.time, R.string.km};
     private static final int PICKFILE_RESULT_CODE = 1;
     private RunningGagData runningGagData;
     private SortableTableView<OnlyOneRun> tableView;
@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "Vorher: ");
         setContentView(R.layout.activity_main);
         //createShareEvent();
         Toolbar title = findViewById(R.id.toolbar);
@@ -116,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, Runnow.class));
             }
         });
-        Log.d(TAG, "Nachher: ");
 
         tableView = (SortableTableView<OnlyOneRun>) findViewById(R.id.runsTable);
         tableView.setColumnCount(TABLE_HEADERS.length);
@@ -192,8 +190,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 };
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage("Are you sure to delete the run from " + new Date(runToBeDeleted.getStartTime()) + "?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
+                Date date = new Date(runToBeDeleted.getStartTime());
+                builder.setMessage(getString(R.string.sure_to_delete, date))
+                        .setPositiveButton(R.string.yes, dialogClickListener)
+                        .setNegativeButton(R.string.no, dialogClickListener).show();
 
                 return true;
             }
@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
             backupIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             Log.d(TAG, "Intent:  " + backupIntent + " URI: " + backupUri);
         }
-        startActivity(Intent.createChooser(backupIntent, "Wohin mit dem Backup File?"));
+        startActivity(Intent.createChooser(backupIntent, getString(R.string.backup_file_location)));
     }
 
     private void callBackupToDiskAction() {
