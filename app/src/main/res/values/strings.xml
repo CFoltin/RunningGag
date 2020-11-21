@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">RunningGag</string>
     <string name="file_provider_authority" translatable="false">eu.johannes.runninggag.fileprovider</string>
-    <string name="disclaimer">To see maps for your runs, allow RunningGag  to use your location all of the time.
-        RunningGag will use location in the background to show the runs  on a map.
-        Moreover you get statistics about time per kilometer and  total running distance.</string>
+    <string name="disclaimer">To see maps for your runs, allow RunningGag  to use your location all of the time.\nRunningGag will use location in the background to show the runs  on a map.\nMoreover you get statistics about time per kilometer and  total running distance.</string>
     <string name="turn_on">Turn On</string>
     <string name="no_thanks">No Thanks</string>
     <string name="dont_ask_again">Don\'t ask again</string>
@@ -29,7 +27,7 @@
     <string name="runresult_mean_time">Average time: %s</string>
     <string name="runresult_no_result">Still no average present.</string>
     <string name="runresult_lap_results">Lap time:</string>
-    <string name="runresult_lap_time_contents">%sDist.: %skm; Lap: %s; Total: %s%s\\n</string>
+    <string name="runresult_lap_time_contents">%sDist.: %skm; Lap: %s; Total: %s%s\n</string>
     <string name="runresult_polyline_tapped">polyline with %dpts was tapped</string>
     <string name="runresult_file_location">Where to put the GPX file to?</string>
     <string name="runresult_share_image">Share image via</string>
@@ -37,11 +35,11 @@
     <string name="myservice_notification">Time: %s  Distance:%skm  Average: %skm/h</string>
     <string name="total_distance">"Total distance: "</string>
     <string name="this_year_distance">Total distance of this year:</string>
-    <string name="runnow_speed_not_ready">Speed not ready</string>
-    <string name="runnow_time_not_ready">Time not ready</string>
-    <string name="runnow_distance_not_ready">Distance not ready</string>
-    <string name="runnow_points_not_ready">Points not ready</string>
-    <string name="runnow_accuracy_not_ready">Accuracy not ready</string>
+    <string name="runnow_speed_not_ready">Speed: not ready</string>
+    <string name="runnow_time_not_ready">Time: not ready</string>
+    <string name="runnow_distance_not_ready">Distance: not ready</string>
+    <string name="runnow_points_not_ready">Points: not ready</string>
+    <string name="runnow_accuracy_not_ready">Accuracy: not ready</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_store">Store</string>
     <string name="menu_import">Import</string>

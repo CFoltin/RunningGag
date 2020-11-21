@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">RunningGag</string>
-    <string name="disclaimer">Um Deine Läufe auf einer Karte zu sehen, braucht RunningGag das Recht, Deine Position immer verfolgen zu können.
-        RunningGag wird diese Positionen, die es während der Läufe im Hintergrund sammelt, nutzen um die Läufe auf einer Karte anzuzeigen.
-        Ferner bekommst Du eine statistische Auswertung der Durchschnittszeiten pro Kilometer und Deiner Gesamtdistanz.</string>
+    <string name="disclaimer">Um Deine Läufe auf einer Karte zu sehen, braucht RunningGag das Recht, Deine Position immer verfolgen zu können.\nRunningGag wird diese Positionen, die es während der Läufe im Hintergrund sammelt, nutzen um die Läufe auf einer Karte anzuzeigen.\nFerner bekommst Du eine statistische Auswertung der Durchschnittszeiten pro Kilometer und Deiner Gesamtdistanz.</string>
     <string name="turn_on">Anschalten</string>
     <string name="no_thanks">Nein Danke</string>
-    <string name="dont_ask_again">Nicht mehr fragen#</string>
+    <string name="dont_ask_again">Nicht mehr fragen</string>
     <string name="use_your_location">Positionsabfrage</string>
     <string name="date">Datum</string>
     <string name="distance">Distanz</string>
@@ -28,7 +26,7 @@
     <string name="runresult_mean_time">Durchschnittszeit: %s</string>
     <string name="runresult_no_result">Noch kein Durchschnitt bekannt.</string>
     <string name="runresult_lap_results">Rundenzeiten:</string>
-    <string name="runresult_lap_time_contents">%sDist.: %skm; Runde: %s; Gesamt: %s%s\\n</string>
+    <string name="runresult_lap_time_contents">%sDist.: %skm; Runde: %s; Gesamt: %s%s\n</string>
     <string name="runresult_polyline_tapped">Polylinie mit %d Punkten wurde berührt.</string>
     <string name="runresult_file_location">Wohin mit dem GPX File?</string>
     <string name="runresult_share_image">Teile Bild mit</string>
@@ -36,11 +34,11 @@
     <string name="myservice_notification">Zeit: %s  Distanz:%skm  Schnitt: %skm/h</string>
     <string name="total_distance">"Insgesamt gelaufen: "</string>
     <string name="this_year_distance">"Dieses Jahr gelaufen: "</string>
-    <string name="runnow_speed_not_ready">Geschwindigkeit nicht bekant</string>
-    <string name="runnow_time_not_ready">Zeit nicht bekannt</string>
-    <string name="runnow_distance_not_ready">Distanz nicht bekannt</string>
-    <string name="runnow_points_not_ready">Punkte nicht bekannt</string>
-    <string name="runnow_accuracy_not_ready">Genauigkeit nicht bekannt</string>
+    <string name="runnow_speed_not_ready">Geschwindigkeit: nicht bekannt</string>
+    <string name="runnow_time_not_ready">Zeit: nicht bekannt</string>
+    <string name="runnow_distance_not_ready">Distanz: nicht bekannt</string>
+    <string name="runnow_points_not_ready">Punkte: nicht bekannt</string>
+    <string name="runnow_accuracy_not_ready">Genauigkeit: nicht bekannt</string>
     <string name="menu_backup">Backup</string>
     <string name="menu_store">Sichern</string>
     <string name="menu_import">Import</string>
