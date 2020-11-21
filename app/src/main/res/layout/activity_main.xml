@@ -17,7 +17,7 @@
         android:layout_height="200dp"
         android:layout_marginTop="60dp"
         android:background="@drawable/roundedbutton2"
-        android:text="Start" />
+        android:text="@string/runnow_start" />
 
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
                 android:id="@+id/gesamtgelaufentext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Insgesamt Gelaufen: "
+                android:text="@string/total_distance"
                 android:textColor="#a4f7ff00" />
 
             <TextView
@@ -57,7 +57,7 @@
             android:id="@+id/diesesjahrgelaufentext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dieses Jahr Gelaufen: "
+            android:text="@string/this_year_distance"
             android:textColor="#a4f7ff00" />
 
         <TextView

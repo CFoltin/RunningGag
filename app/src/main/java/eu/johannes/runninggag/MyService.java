@@ -140,8 +140,11 @@ public class MyService extends Service
             DecimalFormat f = new DecimalFormat("#0.00");
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), MyService.class.getName())
                     .setSmallIcon(R.drawable.ic_runnotification)
-                    .setContentTitle("wie weit du gelaufen bist du lappen")
-                    .setContentText("Time: " + Runnow.getDurationString(caculateTotalRunTime()/1000) + "  Distance:"+ f.format(distance/1000d) + "km  " + "Average: " + f.format(distance/caculateTotalRunTime()) + "km/h")
+                    .setContentTitle(getString(R.string.myservice_running_distance))
+                    .setContentText(getString(R.string.myservice_notification,
+                            Runnow.getDurationString(caculateTotalRunTime() / 1000),
+                            f.format(distance / 1000d),
+                            f.format(distance / caculateTotalRunTime())))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
                 NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
 

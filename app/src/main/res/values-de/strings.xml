@@ -32,4 +32,20 @@
     <string name="runresult_polyline_tapped">Polylinie mit %d Punkten wurde berührt.</string>
     <string name="runresult_file_location">Wohin mit dem GPX File?</string>
     <string name="runresult_share_image">Teile Bild mit</string>
+    <string name="myservice_running_distance">Laufdistanz</string>
+    <string name="myservice_notification">Zeit: %s  Distanz:%skm  Schnitt: %skm/h</string>
+    <string name="total_distance">"Insgesamt gelaufen: "</string>
+    <string name="this_year_distance">"Dieses Jahr gelaufen: "</string>
+    <string name="runnow_speed_not_ready">Geschwindigkeit nicht bekant</string>
+    <string name="runnow_time_not_ready">Zeit nicht bekannt</string>
+    <string name="runnow_distance_not_ready">Distanz nicht bekannt</string>
+    <string name="runnow_points_not_ready">Punkte nicht bekannt</string>
+    <string name="runnow_accuracy_not_ready">Genauigkeit nicht bekannt</string>
+    <string name="menu_backup">Backup</string>
+    <string name="menu_store">Sichern</string>
+    <string name="menu_import">Import</string>
+    <string name="menu_share">Teilen</string>
+    <string name="menu_gpx">GPX</string>
+    <string name="menu_map_image">Karte als Bild</string>
+    <string name="menu_flatten">Glätten</string>
 </resources>

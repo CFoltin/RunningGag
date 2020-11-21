@@ -33,4 +33,20 @@
     <string name="runresult_polyline_tapped">polyline with %dpts was tapped</string>
     <string name="runresult_file_location">Where to put the GPX file to?</string>
     <string name="runresult_share_image">Share image via</string>
+    <string name="myservice_running_distance">Running distance</string>
+    <string name="myservice_notification">Time: %s  Distance:%skm  Average: %skm/h</string>
+    <string name="total_distance">"Total distance: "</string>
+    <string name="this_year_distance">Total distance of this year:</string>
+    <string name="runnow_speed_not_ready">Speed not ready</string>
+    <string name="runnow_time_not_ready">Time not ready</string>
+    <string name="runnow_distance_not_ready">Distance not ready</string>
+    <string name="runnow_points_not_ready">Points not ready</string>
+    <string name="runnow_accuracy_not_ready">Accuracy not ready</string>
+    <string name="menu_backup">Backup</string>
+    <string name="menu_store">Store</string>
+    <string name="menu_import">Import</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_gpx">GPX</string>
+    <string name="menu_map_image">Map image</string>
+    <string name="menu_flatten">Flatten</string>
 </resources>

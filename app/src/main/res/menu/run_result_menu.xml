@@ -2,20 +2,20 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_item_share"
-        android:title="Share"
+        android:title="@string/menu_share"
         app:showAsAction="ifRoom"
         app:actionProviderClass="androidx.appcompat.widget.ShareActionProvider"/>
     <item
         android:id="@+id/menu_item_gpx"
-        android:title="GPX"
+        android:title="@string/menu_gpx"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_item_image"
-        android:title="Map image"
+        android:title="@string/menu_map_image"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_item_flatten"
-        android:title="Flatten"
+        android:title="@string/menu_flatten"
         app:showAsAction="ifRoom" />
 
 
