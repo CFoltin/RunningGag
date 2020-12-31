@@ -8,13 +8,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -24,6 +17,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String APPLICATION_JSON = "text/plain";
     public static final String APPLICATION_ZIP = "application/zip";
     private static final String TAG = "MainActivity";
-    private static final int[] TABLE_HEADERS = {R.string.date, R.string.distance, R.string.time, R.string.km};
+    private static final int[] TABLE_HEADERS = {R.string.date, R.string.distance, R.string.time};
     private static final int PICKFILE_RESULT_CODE = 1;
     private RunningGagData runningGagData;
     private SortableTableView<OnlyOneRun> tableView;
@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         //createShareEvent();
         Toolbar title = findViewById(R.id.toolbar);
         setSupportActionBar(title);
@@ -143,15 +144,6 @@ public class MainActivity extends AppCompatActivity {
                 return -Long.compare(o1.caculateTotalRunTime(), o2.caculateTotalRunTime());
             }
         });
-        tableView.setColumnComparator(3, new Comparator<OnlyOneRun>() {
-            @Override
-            public int compare(OnlyOneRun o1, OnlyOneRun o2) {
-                if (o1.getCategory() != o2.getCategory()) {
-                    return -Integer.compare(o1.getCategory(), o2.getCategory());
-                }
-                return -Long.compare(o1.caculateTotalRunTime(), o2.caculateTotalRunTime());
-            }
-        });
 
         SimpleTableHeaderAdapter simpleTableHeaderAdapter = new SimpleTableHeaderAdapter(this, TABLE_HEADERS);
         simpleTableHeaderAdapter.setTextColor(getResources().getColor(R.color.tableForeground));
@@ -162,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataClicked(int rowIndex, OnlyOneRun run) {
                 // ListView Clicked item value
-                Intent intent = new Intent(MainActivity.this, RunResult.class);
+                Intent intent = new Intent(MainActivity.this, TabbedRunResult.class);
                 intent.putExtra("com.example.runs.run", run);
                 startActivity(intent);
             }
@@ -463,10 +455,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2:
                     content = Runnow.getDurationString(run.caculateTotalRunTime() / 1000l);
-                    break;
-                case 3:
-                    textView.setGravity(Gravity.RIGHT);
-                    content = "" + run.getCategory() + " km";
                     break;
             }
             textView.setText(content);

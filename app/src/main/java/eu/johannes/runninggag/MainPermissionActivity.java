@@ -6,13 +6,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
+
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
+import androidx.core.app.ActivityCompat;
 
 public class MainPermissionActivity extends AppCompatActivity {
     // Location Permissions
@@ -26,8 +27,10 @@ public class MainPermissionActivity extends AppCompatActivity {
      * Checks if the app has permission to access the GPS in background
      * <p>
      * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @return true, if all permissions are already ok.
      */
-    public void verifyLocationPermissions() {
+    public boolean verifyLocationPermissions() {
         final RunningGagData runningGagData = RunningGagData.loadData(this);
         // Check if we have location permission
         int permission2 = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -73,7 +76,9 @@ public class MainPermissionActivity extends AppCompatActivity {
                         .show();
 
             }
+            return false;
         }
+        return true;
     }
 
     @Override
@@ -81,7 +86,7 @@ public class MainPermissionActivity extends AppCompatActivity {
         moveToMainActivity();
     }
 
-    public void verifyBatteryOptimizationIsOff() {
+    public boolean verifyBatteryOptimizationIsOff() {
         // see https://stackoverflow.com/a/54982071
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Intent intent = new Intent();
@@ -91,16 +96,21 @@ public class MainPermissionActivity extends AppCompatActivity {
                 intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                 intent.setData(Uri.parse("package:" + packageName));
                 startActivity(intent);
+                return false;
             }
         }
+        return true;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_permission);
-        verifyBatteryOptimizationIsOff();
-        verifyLocationPermissions();
+        boolean permsOk = verifyBatteryOptimizationIsOff();
+        permsOk &= verifyLocationPermissions();
+        if (permsOk) {
+            moveToMainActivity();
+        }
     }
 
     private void moveToMainActivity() {
