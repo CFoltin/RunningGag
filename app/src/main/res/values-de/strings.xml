@@ -46,4 +46,6 @@
     <string name="menu_gpx">GPX</string>
     <string name="menu_map_image">Karte als Bild</string>
     <string name="menu_flatten">Glätten</string>
+    <string name="tabbed_run_result_tab_run">Lauf</string>
+    <string name="tabbed_run_result_tab_categories">Vergleich</string>
 </resources>

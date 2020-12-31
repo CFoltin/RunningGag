@@ -35,14 +35,14 @@ public class TabbedRunResult extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
 
         TabLayout.Tab firstTab = tabLayout.newTab();
-        firstTab.setText("First"); // set the Text for the first Tab
+        firstTab.setText(R.string.tabbed_run_result_tab_run); // set the Text for the first Tab
         firstTab.setIcon(R.drawable.osm_ic_center_map); // set an icon for the
         tabLayout.addTab(firstTab); // add  the tab at in the TabLayout
 
-//        TabLayout.Tab secondTab = tabLayout.newTab();
-//        secondTab.setText("Second"); // set the Text for the second Tab
-//        secondTab.setIcon(R.drawable.marker_default); // set an icon for the second tab
-//        tabLayout.addTab(secondTab); // add  the tab  in the TabLayout
+        TabLayout.Tab secondTab = tabLayout.newTab();
+        secondTab.setText(R.string.tabbed_run_result_tab_categories); // set the Text for the second Tab
+        secondTab.setIcon(R.drawable.marker_default); // set an icon for the second tab
+        tabLayout.addTab(secondTab); // add  the tab  in the TabLayout
 
         PagerAdapter adapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());

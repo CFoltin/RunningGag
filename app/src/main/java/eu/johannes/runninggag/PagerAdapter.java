@@ -19,9 +19,9 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
             case 0:
                 RunResult tab1 = new RunResult();
                 return tab1;
-//            case 1:
-//                SecondFragment tab2 = new SecondFragment();
-//                return tab2;
+            case 1:
+                CategoryListFragment tab2 = new CategoryListFragment();
+                return tab2;
 //            case 2:
 //                ThirdFragment tab3 = new ThirdFragment();
 //                return tab3;

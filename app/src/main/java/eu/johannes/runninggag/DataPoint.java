@@ -78,6 +78,4 @@ public class DataPoint {
     public void setAccuracy(double accuracy) {
         this.accuracy = accuracy;
     }
-
-
 }

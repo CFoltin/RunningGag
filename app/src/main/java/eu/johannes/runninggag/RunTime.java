@@ -1,5 +1,7 @@
 package eu.johannes.runninggag;
 
+import java.util.Objects;
+
 /**
  * Created by johannes on 11.01.19.
  */
@@ -29,5 +31,19 @@ public class RunTime {
                 "startime=" + startime +
                 ", stoptime=" + stoptime +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RunTime runTime = (RunTime) o;
+        return startime == runTime.startime &&
+                stoptime == runTime.stoptime;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startime, stoptime);
     }
 }

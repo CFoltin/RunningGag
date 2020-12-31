@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -12,6 +13,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 public class OnlyOneRun implements Parcelable {
     private double distance;
@@ -45,7 +47,7 @@ public class OnlyOneRun implements Parcelable {
         this.time = time;
     }
 
-    private ArrayList <RunTime> time = new ArrayList<>();
+    private ArrayList<RunTime> time = new ArrayList<>();
 
     public ArrayList<DataPoint> getDataPoints() {
         return dataPoints;
@@ -108,14 +110,14 @@ public class OnlyOneRun implements Parcelable {
         }.getType();
         Collection<DataPoint> dataPoints = gson.fromJson(data, collectionType);
         getDataPoints().clear();
-        if(dataPoints != null) {
+        if (dataPoints != null) {
             getDataPoints().addAll(dataPoints);
         }
     }
 
-    public void flattenDataPoints(){
+    public void flattenDataPoints() {
         KalmanLatLon kalmanLatLon = new KalmanLatLon(6);
-        for (DataPoint dataPoint: dataPoints){
+        for (DataPoint dataPoint : dataPoints) {
             kalmanLatLon.Process(dataPoint.getLatitude(), dataPoint.getLongitude(), (float) dataPoint.getAccuracy(), dataPoint.getTime());
             dataPoint.setLatitude(kalmanLatLon.get_lat());
             dataPoint.setLongitude(kalmanLatLon.get_lng());
@@ -138,7 +140,7 @@ public class OnlyOneRun implements Parcelable {
         editor.commit();
     }
 
-    public void removeDataPoints(Context context){
+    public void removeDataPoints(Context context) {
         SharedPreferences preferences = context.getSharedPreferences(getDataPointFileName(), Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove("data");
@@ -149,27 +151,28 @@ public class OnlyOneRun implements Parcelable {
     public String getDataPointFileName() {
         return "point_data_" + "_" + getStartTime() + getStopTime();
     }
-    public long caculateTotalRunTime (){
-        long totalRunTime = 0;
-        for (RunTime run : time){
 
-                totalRunTime = totalRunTime + run.stoptime - run.startime;
+    public long caculateTotalRunTime() {
+        long totalRunTime = 0;
+        for (RunTime run : time) {
+
+            totalRunTime = totalRunTime + run.stoptime - run.startime;
         }
         return totalRunTime;
     }
 
-    public Integer getTimeSegment(DataPoint dataPoint){
+    public Integer getTimeSegment(DataPoint dataPoint) {
         int newDataPointTimeIndex = 0;
         boolean timeSegmentFound = false;
-        for (RunTime timeSegment : getTime()){
-            if(dataPoint.getTime()>= timeSegment.startime && dataPoint.getTime()<= timeSegment.stoptime){
+        for (RunTime timeSegment : getTime()) {
+            if (dataPoint.getTime() >= timeSegment.startime && dataPoint.getTime() <= timeSegment.stoptime) {
                 // found
                 timeSegmentFound = true;
                 break;
             }
             newDataPointTimeIndex++;
         }
-        if(!timeSegmentFound){
+        if (!timeSegmentFound) {
             // ok, point seems inside of a pause. drop it.
             return null;
         }
@@ -177,10 +180,26 @@ public class OnlyOneRun implements Parcelable {
     }
 
     /**
-     *
      * @return the amount of kilometers casted to int.
      */
-    public int getCategory(){
-        return (int) (getDistance()/1000d);
+    public int getCategory() {
+        return (int) (getDistance() / 1000d);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OnlyOneRun that = (OnlyOneRun) o;
+        return Double.compare(that.distance, distance) == 0 &&
+                points == that.points &&
+                startTime == that.startTime &&
+                stopTime == that.stopTime &&
+                time.equals(that.time);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(distance, points, startTime, stopTime, time);
     }
 }

@@ -47,4 +47,6 @@
     <string name="menu_gpx">GPX</string>
     <string name="menu_map_image">Map image</string>
     <string name="menu_flatten">Flatten</string>
+    <string name="tabbed_run_result_tab_run">Run</string>
+    <string name="tabbed_run_result_tab_categories">Categories</string>
 </resources>
