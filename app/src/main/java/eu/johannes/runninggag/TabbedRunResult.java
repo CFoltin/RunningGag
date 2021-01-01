@@ -48,5 +48,20 @@ public class TabbedRunResult extends AppCompatActivity {
                 (getSupportFragmentManager(), tabLayout.getTabCount());
         simpleViewPager.setAdapter(adapter);
         simpleViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tabSelected) {
+                simpleViewPager.setCurrentItem(tabSelected.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tabSelected) {
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tabSelected) {
+
+            }
+        });
     }
 }
