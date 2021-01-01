@@ -17,14 +17,13 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                RunResult tab1 = new RunResult();
-                return tab1;
+                return new RunResult(0);
             case 1:
-                CategoryListFragment tab2 = new CategoryListFragment();
-                return tab2;
-//            case 2:
-//                ThirdFragment tab3 = new ThirdFragment();
-//                return tab3;
+                return new RunResult(RunResult.WITHOUT_MAP);
+            case 2:
+                return new CategoryListFragment();
+            case 3:
+                return new RunResult(RunResult.WITHOUT_INFO);
             default:
                 return null;
         }

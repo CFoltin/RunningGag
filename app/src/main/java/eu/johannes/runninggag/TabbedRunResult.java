@@ -34,15 +34,10 @@ public class TabbedRunResult extends AppCompatActivity {
         simpleViewPager = (ViewPager) findViewById(R.id.simpleViewPager);
         tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
 
-        TabLayout.Tab firstTab = tabLayout.newTab();
-        firstTab.setText(R.string.tabbed_run_result_tab_run); // set the Text for the first Tab
-        firstTab.setIcon(R.drawable.osm_ic_center_map); // set an icon for the
-        tabLayout.addTab(firstTab); // add  the tab at in the TabLayout
-
-        TabLayout.Tab secondTab = tabLayout.newTab();
-        secondTab.setText(R.string.tabbed_run_result_tab_categories); // set the Text for the second Tab
-        secondTab.setIcon(R.drawable.marker_default); // set an icon for the second tab
-        tabLayout.addTab(secondTab); // add  the tab  in the TabLayout
+        addTab(R.string.tabbed_run_result_tab_run, R.drawable.osm_ic_center_map);
+        addTab(R.string.tabbed_run_result_tab_infos, R.drawable.marker_default);
+        addTab(R.string.tabbed_run_result_tab_categories, R.drawable.marker_default);
+        addTab(R.string.tabbed_run_result_tab_map, R.drawable.osm_ic_center_map);
 
         PagerAdapter adapter = new PagerAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());
@@ -63,5 +58,12 @@ public class TabbedRunResult extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void addTab(int p, int p2) {
+        TabLayout.Tab tab = tabLayout.newTab();
+        tab.setText(p);
+        tab.setIcon(p2);
+        tabLayout.addTab(tab);
     }
 }

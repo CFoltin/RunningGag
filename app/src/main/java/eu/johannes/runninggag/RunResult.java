@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,10 +54,18 @@ public class RunResult extends Fragment {
 
     private static final String TAG = RunResult.class.getName();
     public static final String APPLICATION_GPX_XML = "application/gpx+xml";
+    public static final int WITHOUT_MAP = 1;
+    public static final int WITHOUT_INFO = 2;
     MapView map = null;
     private Intent shareIntent;
     private ShareActionProvider mShareActionProvider;
     private OnlyOneRunViewModel viewModel;
+    private int uiRestrictions;
+
+
+    public RunResult(int uiRestrictions) {
+        this.uiRestrictions = uiRestrictions;
+    }
 
     @Nullable
     @Override
@@ -82,15 +91,37 @@ public class RunResult extends Fragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         viewModel = new ViewModelProvider(requireActivity()).get(OnlyOneRunViewModel.class);
-
-        //inflate and create the map
-        displayMapWithPoints(v);
         createShareAction();
+        TableLayout tableLayout = v.findViewById(R.id.runResultTable);
+        //inflate and create the map
+        if (isWithMap()) {
+            displayMapWithPoints(v);
+        } else {
+            // remove map row:
+            tableLayout.removeView(v.findViewById(R.id.mapRow));
+        }
 
-        displayRunInformation(v);
+        if (isWithInfo()) {
+            displayRunInformation(v);
+        } else {
+            tableLayout.removeView(v.findViewById(R.id.dateRow));
+            tableLayout.removeView(v.findViewById(R.id.infoRow));
+            tableLayout.removeView(v.findViewById(R.id.info2Row));
+            tableLayout.removeView(v.findViewById(R.id.roundRow));
+        }
+    }
+
+    public boolean isWithInfo() {
+        return (uiRestrictions & WITHOUT_INFO) == 0;
+    }
+
+    public boolean isWithMap() {
+        return (uiRestrictions & WITHOUT_MAP) == 0;
     }
 
     public void displayRunInformation(View v) {
+        if (!isWithInfo())
+            return;
         TextView minprokm = v.findViewById(R.id.MinproKM);
         double distance = getRun().getDistance();
         long time = getRun().caculateTotalRunTime();
@@ -178,6 +209,8 @@ public class RunResult extends Fragment {
     }
 
     public void displayMapWithPoints(View v) {
+        if (!isWithMap())
+            return;
         map = (MapView) v.findViewById(R.id.mymap);
         map.setTileSource(TileSourceFactory.MAPNIK);
 
@@ -242,20 +275,24 @@ public class RunResult extends Fragment {
 
     public void onResume() {
         super.onResume();
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
+        if (isWithMap()) {
+            //this will refresh the osmdroid configuration on resuming.
+            //if you make changes to the configuration, use
+            //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+            map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
+        }
     }
 
     public void onPause() {
         super.onPause();
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().save(this, prefs);
-        map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
+        if (isWithMap()) {
+            //this will refresh the osmdroid configuration on resuming.
+            //if you make changes to the configuration, use
+            //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            //Configuration.getInstance().save(this, prefs);
+            map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
+        }
     }
 
     @Override

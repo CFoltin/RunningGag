@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/runResultTable"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -10,23 +10,27 @@
     <include layout="@layout/toolbar"></include>
 
     <TableRow
+        android:id="@+id/mapRow"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_margin="1dp"
-        android:layout_weight="1" >
+        android:layout_weight="1">
 
 
-    <org.osmdroid.views.MapView android:id="@+id/mymap"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_gravity="center"
-        android:layout_span="2"/>
+        <org.osmdroid.views.MapView
+            android:id="@+id/mymap"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_gravity="center"
+            android:layout_span="2" />
     </TableRow>
+
     <TableRow
+        android:id="@+id/dateRow"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_margin="1dp"
-        android:layout_weight="1" >
+        android:layout_weight="1">
 
 
         <TextView
@@ -38,10 +42,11 @@
             android:gravity="center"
             android:text="TextView"
             android:layout_gravity="center"
-            android:layout_span="2"/>
+            android:layout_span="2" />
     </TableRow>
 
     <TableRow
+        android:id="@+id/infoRow"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_margin="1dp"
@@ -70,11 +75,12 @@
 
 
     <TableRow
+        android:id="@+id/info2Row"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_margin="1dp"
-        android:layout_weight="1"
-        >
+        android:layout_weight="1">
+
         <TextView
             android:id="@+id/points"
             android:layout_width="wrap_content"
@@ -89,12 +95,13 @@
             android:layout_height="wrap_content"
             android:text="TextView" />
     </TableRow>
+
     <TableRow
+        android:id="@+id/roundRow"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_margin="1dp"
-        android:layout_weight="1"
-        >
+        android:layout_weight="1">
 
         <TextView
             android:id="@+id/rundenzeiten"
