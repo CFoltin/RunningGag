@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/runResultTable"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:stretchColumns="0,1"
+    android:gravity="center">
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_margin="1dp"
+        android:layout_weight="1">
+
+
+        <TextView
+            android:id="@+id/Date"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="1dp"
+            android:layout_column="0"
+            android:gravity="center"
+            android:text="TextView"
+            android:layout_gravity="center"
+            android:layout_span="2" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_margin="1dp"
+        android:layout_weight="1"
+
+        >
+
+        <TextView
+            android:id="@+id/Distance"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="1dp"
+            android:layout_column="0"
+            android:gravity="center"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/MinproKM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            android:layout_column="0"
+            android:gravity="center"
+            android:text="TextView" />
+    </TableRow>
+
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_margin="1dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/points"
+            android:layout_width="wrap_content"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_margin="1dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/rundenzeiten"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_span="2"
+            android:gravity="start"
+            android:text="TextView"
+            android:textAlignment="viewStart" />
+    </TableRow>
+</TableLayout>
