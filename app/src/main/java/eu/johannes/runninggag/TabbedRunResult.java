@@ -4,16 +4,20 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.ArrayList;
 
 public class TabbedRunResult extends AppCompatActivity {
     private static final String TAG = TabbedRunResult.class.getName();
     ViewPager simpleViewPager;
     TabLayout tabLayout;
     private OnlyOneRunViewModel viewModel;
+    private ArrayList<Fragment> fragments = new ArrayList<>();
 
 
     @Override
@@ -34,13 +38,14 @@ public class TabbedRunResult extends AppCompatActivity {
         simpleViewPager = (ViewPager) findViewById(R.id.simpleViewPager);
         tabLayout = (TabLayout) findViewById(R.id.simpleTabLayout);
 
-        addTab(R.string.tabbed_run_result_tab_run, R.drawable.osm_ic_center_map);
-        addTab(R.string.tabbed_run_result_tab_infos, R.drawable.marker_default);
-        addTab(R.string.tabbed_run_result_tab_categories, R.drawable.marker_default);
-        addTab(R.string.tabbed_run_result_tab_map, R.drawable.osm_ic_center_map);
+        addTab(R.string.tabbed_run_result_tab_run, R.drawable.osm_ic_center_map, new RunResult());
+        addTab(R.string.tabbed_run_result_tab_infos, R.drawable.marker_default, new RunResultInfo());
+        addTab(R.string.tabbed_run_result_tab_categories, R.drawable.marker_default, new CategoryListFragment());
+        addTab(R.string.tabbed_run_result_tab_speed_chart, R.drawable.direction_arrow, new SpeedChartFragment());
+        addTab(R.string.tabbed_run_result_tab_map, R.drawable.osm_ic_center_map, new MapResult());
 
         PagerAdapter adapter = new PagerAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount());
+                (getSupportFragmentManager(), fragments);
         simpleViewPager.setAdapter(adapter);
         simpleViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -60,10 +65,11 @@ public class TabbedRunResult extends AppCompatActivity {
         });
     }
 
-    private void addTab(int p, int p2) {
+    private void addTab(int p, int p2, Fragment fragment) {
         TabLayout.Tab tab = tabLayout.newTab();
         tab.setText(p);
         tab.setIcon(p2);
         tabLayout.addTab(tab);
+        fragments.add(fragment);
     }
 }

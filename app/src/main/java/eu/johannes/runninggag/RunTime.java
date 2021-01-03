@@ -46,4 +46,8 @@ public class RunTime {
     public int hashCode() {
         return Objects.hash(startime, stoptime);
     }
+
+    public boolean contains(long time) {
+        return startime <= time && stoptime >= time;
+    }
 }

@@ -50,4 +50,5 @@
     <string name="tabbed_run_result_tab_infos">Infos</string>
     <string name="tabbed_run_result_tab_map">Karte</string>
     <string name="tabbed_run_result_tab_categories">Vergleich</string>
+    <string name="tabbed_run_result_tab_speed_chart">Geschwindigkeit</string>
 </resources>

@@ -4,33 +4,26 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-public class PagerAdapter extends FragmentStatePagerAdapter {
-    int mNumOfTabs;
+import java.util.ArrayList;
 
-    public PagerAdapter(FragmentManager fm, int NumOfTabs) {
+public class PagerAdapter extends FragmentStatePagerAdapter {
+    ArrayList<Fragment> fragments;
+
+    public PagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments) {
         super(fm);
-        this.mNumOfTabs = NumOfTabs;
+        this.fragments = fragments;
     }
 
     @Override
     public Fragment getItem(int position) {
-
-        switch (position) {
-            case 0:
-                return new RunResult();
-            case 1:
-                return new RunResultInfo();
-            case 2:
-                return new CategoryListFragment();
-            case 3:
-                return new MapResult();
-            default:
-                return null;
+        if (position >= 0 && position < fragments.size()) {
+            return fragments.get(position);
         }
+        return null;
     }
 
     @Override
     public int getCount() {
-        return mNumOfTabs;
+        return fragments.size();
     }
 }
