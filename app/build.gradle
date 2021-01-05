@@ -41,7 +41,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-    implementation 'org.osmdroid:osmdroid-android:6.0.2'
+    implementation 'org.osmdroid:osmdroid-android:6.1.8'
     implementation 'de.codecrafters.tableview:tableview:2.8.0'
     def lifecycle_version = "2.2.0"
     def arch_version = "2.1.0"

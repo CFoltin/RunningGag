@@ -27,6 +27,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 
@@ -77,9 +78,7 @@ public class MapResult extends Fragment {
         createShareAction();
         //inflate and create the map
         displayMapWithPoints(v);
-
     }
-
 
     public OnlyOneRun getRun() {
         return viewModel.getSelectedOnlyOneRun().getValue();
@@ -90,7 +89,7 @@ public class MapResult extends Fragment {
         map.setTileSource(TileSourceFactory.MAPNIK);
 
 
-        map.setBuiltInZoomControls(true);
+        map.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT);
         map.setMultiTouchControls(true);
         map.getOverlayManager().clear();
 
@@ -121,7 +120,7 @@ public class MapResult extends Fragment {
             lines.add(line);
         }
         IMapController mapController = map.getController();
-        mapController.setZoom(15);
+        mapController.setZoom(15d);
         if (!getRun().getDataPoints().isEmpty()) {
             DataPoint firstPoint = getRun().getDataPoints().get(0);
             GeoPoint startPoint = new GeoPoint(firstPoint.getLatitude(), firstPoint.getLongitude());
@@ -253,12 +252,23 @@ public class MapResult extends Fragment {
     @NonNull
     private String getGpxFileContent() {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-        String gpxFile = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" creator=\"RunningGag\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\"><trk><trkseg>";
+        StringBuilder gpxFile = new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                "version=\"1.1\" creator=\"RunningGag\" " +
+                "xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 " +
+                "http://www.topografix.com/GPX/1/1/gpx.xsd\"><trk><trkseg>");
         for (DataPoint dataPoint : getRun().getDataPoints()) {
-            gpxFile += "<trkpt lat=\"" + dataPoint.getLatitude() + "\" lon=\"" + dataPoint.getLongitude() + "\" ><time>" + df.format(new Date(dataPoint.getTime())) + "</time> </trkpt>";
+            gpxFile.append("<trkpt lat=\"")
+                    .append(dataPoint.getLatitude())
+                    .append("\" lon=\"")
+                    .append(dataPoint.getLongitude())
+                    .append("\" ><time>")
+                    .append(df.format(new Date(dataPoint.getTime())))
+                    .append("</time> </trkpt>");
         }
-        gpxFile += "</trkseg></trk></gpx>";
-        return gpxFile;
+        gpxFile.append("</trkseg></trk></gpx>");
+        return gpxFile.toString();
     }
 
     private Bitmap getBitmapFromView(View view) {
