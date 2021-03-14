@@ -2,6 +2,7 @@ package eu.johannes.runninggag;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -13,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 public class OnlyOneRun implements Parcelable {
@@ -74,6 +76,19 @@ public class OnlyOneRun implements Parcelable {
 
     public void setDistance(double distance) {
         this.distance = distance;
+    }
+
+    public double getAverageInSecsPerKilometer() {
+        double distance = getDistance();
+        long time = caculateTotalRunTime();
+        distance = distance / 1000d;
+
+        time = time / 1000l;
+        if (distance != 0 && time != 0) {
+            double secprokm = ((double) time) / distance;
+            return secprokm;
+        }
+        return -1f;
     }
 
     @Override
@@ -202,4 +217,86 @@ public class OnlyOneRun implements Parcelable {
     public int hashCode() {
         return Objects.hash(distance, points, startTime, stopTime, time);
     }
+
+
+    public static class TimePerKilometer {
+        public double distanceSinceLastKilometer;
+        long roundtime;
+        long totalRoundtime;
+        boolean pauseOccurredInThisRound = false;
+        double totalDistance = 0;
+        long currentTime;
+    }
+
+    public List<TimePerKilometer> getTimesPerKilometer() {
+        List<TimePerKilometer> ret = new ArrayList<>();
+        if (this.getPoints() > 0 && !this.getTime().isEmpty()) {
+            // at the beginning, the last point is the first.
+            DataPoint lastDataPoint = this.getDataPoints().get(this.getDataPoints().size() - 1);
+            double distanceSinceLastKilometer = 0;
+            double totalDistance = 0;
+            int timeIndex = 0;
+            long lasttime = this.getTime().get(timeIndex).startime;
+            long startTime = lasttime;
+            DataPoint lastPoint = this.getDataPoints().get(0);
+            long accumulatedTime = 0;
+            long accumulatedRoundTime = 0;
+            boolean pauseOccurredInThisRound = false;
+            for (DataPoint dataPoint : this.getDataPoints()) {
+                // determine segment, where this point is located in:
+                Integer newDataPointTimeIndex = this.getTimeSegment(dataPoint);
+                if (newDataPointTimeIndex == null) {
+                    // ok, point seems inside of a pause. drop it.
+                    continue;
+                }
+                if (newDataPointTimeIndex != timeIndex) {
+                    // new index. keep it, but don't calculate:
+                    timeIndex = newDataPointTimeIndex;
+                    lastPoint = dataPoint;
+                    lasttime = dataPoint.getTime();
+                    startTime = lasttime;
+                    pauseOccurredInThisRound = true;
+                    continue;
+                }
+                // ok, same index. Continue to calculate.
+                // time has advanced:
+                accumulatedTime += dataPoint.getTime() - lasttime;
+                accumulatedRoundTime += dataPoint.getTime() - lasttime;
+                // distance has advanced, too.
+                double distanceToLastPoint = getLocation(dataPoint).distanceTo(getLocation(lastPoint));
+                distanceSinceLastKilometer = distanceSinceLastKilometer + distanceToLastPoint;
+                totalDistance += distanceToLastPoint;
+                if (distanceSinceLastKilometer > 1000 || dataPoint == lastDataPoint) {
+                    long roundtime = (long) (accumulatedRoundTime / distanceSinceLastKilometer);
+                    long totalRoundtime = (long) (accumulatedTime / totalDistance);
+                    TimePerKilometer timePerKilometer = new TimePerKilometer();
+                    timePerKilometer.pauseOccurredInThisRound = pauseOccurredInThisRound;
+                    timePerKilometer.roundtime = roundtime;
+                    timePerKilometer.totalRoundtime = totalRoundtime;
+                    timePerKilometer.totalDistance = totalDistance;
+                    timePerKilometer.currentTime = dataPoint.getTime();
+                    timePerKilometer.distanceSinceLastKilometer = distanceSinceLastKilometer;
+                    ret.add(timePerKilometer);
+                    distanceSinceLastKilometer = totalDistance % 1000;
+                    // reset the round time.
+                    accumulatedRoundTime = 0;
+                    pauseOccurredInThisRound = false;
+                }
+                lasttime = dataPoint.getTime();
+                lastPoint = dataPoint;
+            }
+        }
+        return ret;
+    }
+
+    @NonNull
+    private Location getLocation(DataPoint dataPoint) {
+        Location lLast;
+        lLast = new Location("test");
+        lLast.setLatitude(dataPoint.getLatitude());
+        lLast.setLongitude(dataPoint.getLongitude());
+        return lLast;
+    }
+
+
 }

@@ -1,7 +1,6 @@
 package eu.johannes.runninggag;
 
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +23,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
+import java.util.List;
 
 public class SpeedChartFragment extends Fragment {
     private OnlyOneRunViewModel viewModel;
@@ -65,36 +64,14 @@ public class SpeedChartFragment extends Fragment {
         ArrayList<Entry> values = new ArrayList<>();
 
         OnlyOneRun run = viewModel.getSelectedOnlyOneRun().getValue();
-        for (RunTime time : run.getTime()) {
-            long lastTime = 0;
-            Location lastLocation = null;
-            boolean isFirst = true;
-            float totalDistance = 0f;
-            for (DataPoint point : run.getDataPoints()) {
-                long currentTime = point.getTime();
-                if (!time.contains(currentTime)) {
-                    continue;
-                }
-                if (isFirst) {
-                    isFirst = false;
-                    lastLocation = getLocation(point);
-                    lastTime = currentTime;
-                    totalDistance = 0f;
-                    continue;
-                }
-                Location currentLocation = getLocation(point);
-                totalDistance += currentLocation.distanceTo(lastLocation);
-                lastLocation = currentLocation;
-                if (currentTime - lastTime > 120000L) {
-                    values.add(new Entry(currentTime, totalDistance * 60f * 60f / (currentTime - lastTime)));
-                    isFirst = true;
-                }
-            }
+        List<OnlyOneRun.TimePerKilometer> timesPerKilometer = run.getTimesPerKilometer();
+        for (OnlyOneRun.TimePerKilometer timePerKilometer : timesPerKilometer) {
+            double speed = timePerKilometer.distanceSinceLastKilometer / 1000f * 60f * 60f / (timePerKilometer.roundtime);
+            values.add(new Entry(timePerKilometer.currentTime, (float) speed));
         }
-        ArrayList<Entry> meanValues = mean(values, 10);
 
         // create a dataset and give it a type
-        LineDataSet set1 = new LineDataSet(meanValues, "Speed");
+        LineDataSet set1 = new LineDataSet(values, "Speed");
         decorateDataSet(set1, ColorTemplate.getHoloBlue());
 
         // create a data object with the data sets
@@ -105,30 +82,6 @@ public class SpeedChartFragment extends Fragment {
 
         // set data
         lineChart.setData(data);
-    }
-
-    private ArrayList<Entry> mean(ArrayList<Entry> values, int amount) {
-        ArrayList<Entry> means = new ArrayList<>();
-        LinkedList<Float> meanValues = new LinkedList<>();
-        float meanSum = 0F;
-        for (Entry val : values) {
-            meanValues.addLast(val.getY());
-            meanSum += val.getY();
-            while (meanValues.size() > amount) {
-                meanSum -= meanValues.removeFirst();
-            }
-            if (meanValues.size() == amount) {
-                means.add(new Entry(val.getX(), meanSum / amount));
-            }
-        }
-        return means;
-    }
-
-    private Location getLocation(DataPoint point) {
-        Location location = new Location("test");
-        location.setLatitude(point.getLatitude());
-        location.setLongitude(point.getLongitude());
-        return location;
     }
 
     private void decorateDataSet(LineDataSet set2, int materialColor) {

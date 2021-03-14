@@ -7,4 +7,5 @@
     <color name="colortoolbar">#a99c9c9c</color>
     <color name="tableForeground">#a4f7ff00</color>
     <color name="transparent">#00000000</color>
+    <color name="black">#000000</color>
 </resources>

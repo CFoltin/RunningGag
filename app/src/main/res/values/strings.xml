@@ -52,4 +52,5 @@
     <string name="tabbed_run_result_tab_map">Map</string>
     <string name="tabbed_run_result_tab_categories">Categories</string>
     <string name="tabbed_run_result_tab_speed_chart">Speed</string>
+    <string name="tabbed_run_result_tab_average_chart">Average</string>
 </resources>

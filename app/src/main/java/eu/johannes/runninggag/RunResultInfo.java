@@ -1,7 +1,6 @@
 package eu.johannes.runninggag;
 
 import android.content.Context;
-import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -21,6 +20,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by johannes on 27.08.18.
@@ -64,63 +64,18 @@ public class RunResultInfo extends Fragment {
             minprokm.setText(getString(R.string.runresult_no_result));
         }
         DecimalFormat f = new DecimalFormat("#0.00");
-        if (getRun().getPoints() > 0 && !getRun().getTime().isEmpty()) {
-            // at the beginning, the last point is the first.
-            DataPoint lastDataPoint = getRun().getDataPoints().get(getRun().getDataPoints().size() - 1);
-            double distanceSinceLastKilometer = 0;
-            double totalDistance = 0;
-            int timeIndex = 0;
-            long lasttime = getRun().getTime().get(timeIndex).startime;
-            long startTime = lasttime;
-            DataPoint lastPoint = getRun().getDataPoints().get(0);
-            long accumulatedTime = 0;
-            long accumulatedRoundTime = 0;
-            boolean pauseOccurredInThisRound = false;
-            String ausgabe = getString(R.string.runresult_lap_results) + "\n";
-            for (DataPoint dataPoint : getRun().getDataPoints()) {
-                // determine segment, where this point is located in:
-                Integer newDataPointTimeIndex = getRun().getTimeSegment(dataPoint);
-                if (newDataPointTimeIndex == null) {
-                    // ok, point seems inside of a pause. drop it.
-                    continue;
-                }
-                if (newDataPointTimeIndex != timeIndex) {
-                    // new index. keep it, but don't calculate:
-                    timeIndex = newDataPointTimeIndex;
-                    lastPoint = dataPoint;
-                    lasttime = dataPoint.getTime();
-                    startTime = lasttime;
-                    pauseOccurredInThisRound = true;
-                    continue;
-                }
-                // ok, same index. Continue to calculate.
-                // time has advanced:
-                accumulatedTime += dataPoint.getTime() - lasttime;
-                accumulatedRoundTime += dataPoint.getTime() - lasttime;
-                // distance has advanced, too.
-                double distanceToLastPoint = getLocation(dataPoint).distanceTo(getLocation(lastPoint));
-                distanceSinceLastKilometer = distanceSinceLastKilometer + distanceToLastPoint;
-                totalDistance += distanceToLastPoint;
-                if (distanceSinceLastKilometer > 1000 || dataPoint == lastDataPoint) {
-                    long roundtime = (long) (accumulatedRoundTime / distanceSinceLastKilometer);
-                    long totalRoundtime = (long) (accumulatedTime / totalDistance);
-                    ausgabe = getString(R.string.runresult_lap_time_contents,
-                            ausgabe,
-                            f.format(totalDistance / 1000d),
-                            Runnow.getDurationString(roundtime),
-                            Runnow.getDurationString(totalRoundtime),
-                            (pauseOccurredInThisRound) ? " P" : "");
-                    distanceSinceLastKilometer = totalDistance % 1000;
-                    // reset the round time.
-                    accumulatedRoundTime = 0;
-                    pauseOccurredInThisRound = false;
-                }
-                lasttime = dataPoint.getTime();
-                lastPoint = dataPoint;
-            }
-            TextView roundtimefinal = v.findViewById(R.id.rundenzeiten);
-            roundtimefinal.setText(ausgabe);
+        List<OnlyOneRun.TimePerKilometer> timesPerKilometer = getRun().getTimesPerKilometer();
+        String ausgabe = getString(R.string.runresult_lap_results) + "\n";
+        for (OnlyOneRun.TimePerKilometer timePerKilometer : timesPerKilometer) {
+            ausgabe = getString(R.string.runresult_lap_time_contents,
+                    ausgabe,
+                    f.format(timePerKilometer.totalDistance / 1000d),
+                    Runnow.getDurationString(timePerKilometer.roundtime),
+                    Runnow.getDurationString(timePerKilometer.totalRoundtime),
+                    (timePerKilometer.pauseOccurredInThisRound) ? " P" : "");
         }
+        TextView roundtimefinal = v.findViewById(R.id.rundenzeiten);
+        roundtimefinal.setText(ausgabe);
         TextView Distance = v.findViewById(R.id.Distance);
         Distance.setText(getString(R.string.runnow_distance, f.format(distance)));
         TextView Laufzeit = v.findViewById(R.id.time);
@@ -135,15 +90,6 @@ public class RunResultInfo extends Fragment {
 
     public OnlyOneRun getRun() {
         return viewModel.getSelectedOnlyOneRun().getValue();
-    }
-
-    @NonNull
-    private Location getLocation(DataPoint dataPoint) {
-        Location lLast;
-        lLast = new Location("test");
-        lLast.setLatitude(dataPoint.getLatitude());
-        lLast.setLongitude(dataPoint.getLongitude());
-        return lLast;
     }
 
     @Override

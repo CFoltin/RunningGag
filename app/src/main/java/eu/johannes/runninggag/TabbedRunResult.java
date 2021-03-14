@@ -40,7 +40,7 @@ public class TabbedRunResult extends AppCompatActivity {
 
         addTab(R.string.tabbed_run_result_tab_run, R.drawable.osm_ic_center_map, new RunResult());
         addTab(R.string.tabbed_run_result_tab_infos, R.drawable.marker_default, new RunResultInfo());
-        addTab(R.string.tabbed_run_result_tab_categories, R.drawable.marker_default, new CategoryListFragment());
+        addTab(R.string.tabbed_run_result_tab_categories, R.drawable.marker_default, new RunComparisonListFragment());
         addTab(R.string.tabbed_run_result_tab_speed_chart, R.drawable.direction_arrow, new SpeedChartFragment());
         addTab(R.string.tabbed_run_result_tab_map, R.drawable.osm_ic_center_map, new MapResult());
 
